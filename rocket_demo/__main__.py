@@ -163,7 +163,7 @@ def main(argv=None) -> int:
             web = WebServer(controller, cfg)
             web.start()
             if args.sim:
-                print(f"Pagina web: http://localhost:{cfg.web_port}/?control=1")
+                print(f"Pagina web: http://127.0.0.1:{web.port}/?control=1")
         except Exception as exc:  # noqa: BLE001
             log.error("pagina web nu a pornit (%s)", exc)
             web = None

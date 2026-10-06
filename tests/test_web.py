@@ -68,3 +68,24 @@ def test_event_stream_sends_snapshot(web):
     assert second["state"] == "checks"
     assert second["version"] > snap["version"]
     resp.close()
+
+
+def test_web_server_skips_busy_port():
+    import socket
+
+    from rocket_demo.web.server import WebServer
+
+    h = Harness()
+    blocker = socket.socket()
+    blocker.bind(("127.0.0.1", 0))
+    blocker.listen()
+    busy = blocker.getsockname()[1]
+    h.cfg.web_host = "127.0.0.1"
+    h.cfg.web_port = busy
+    try:
+        server = WebServer(h.ctrl, h.cfg)
+        assert server.port != busy
+        assert h.cfg.web_port == server.port
+        server._server.server_close()
+    finally:
+        blocker.close()

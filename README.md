@@ -180,7 +180,9 @@ Ce primești în modul `--sim`:
 - **LCD-ul** este desenat în terminal.
 - **Butoanele** sunt taste: `g`=GO, `l`=LAUNCH, `s`=STAGE, `a`=ABORT, `r`=RESET, `q`=ieșire.
 - **Sunetul** iese prin difuzoarele laptopului.
-- **Pagina web** se deschide la http://localhost:8000/?control=1. Are și butoane pe ecran.
+- **Pagina web** se deschide la adresa afișată în terminal, de obicei
+  http://127.0.0.1:8000/?control=1. Are și butoane pe ecran. Dacă portul 8000 e ocupat de
+  alt program, demo-ul alege singur următorul port liber (8001, 8002…).
 - **De pe telefon sau alt calculator** din aceeași rețea: `http://<IP-ul laptopului>:8000`.
   Pe Windows, permite accesul când întreabă firewall-ul.
 
