@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import socket
@@ -35,9 +36,19 @@ def mission_info(mission: Mission, cfg: Config) -> dict:
     }
 
 
+def build_id(info: dict) -> str:
+    """Amprenta paginii (fișiere statice + misiune); se schimbă la fiecare actualizare."""
+    digest = hashlib.sha1(json.dumps(info, sort_keys=True).encode())
+    for path in sorted(STATIC_DIR.iterdir()):
+        if path.is_file():
+            digest.update(path.read_bytes())
+    return digest.hexdigest()[:12]
+
+
 def create_app(controller: Controller, cfg: Config) -> Flask:
     app = Flask(__name__, static_folder=str(STATIC_DIR), static_url_path="/static")
     info = mission_info(controller.mission, cfg)
+    build = build_id(info)
 
     @app.get("/")
     def index():
@@ -64,6 +75,8 @@ def create_app(controller: Controller, cfg: Config) -> Flask:
     def events():
         def stream():
             yield "retry: 2000\n\n"
+            # pagina se reîncarcă singură dacă serverul a pornit cu altă versiune
+            yield f"event: hello\ndata: {build}\n\n"
             version = None
             while True:
                 snap = controller.wait_for_update(version, timeout=KEEPALIVE_S)

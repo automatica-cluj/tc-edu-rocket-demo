@@ -59,6 +59,8 @@ def test_event_stream_sends_snapshot(web):
     assert resp.mimetype == "text/event-stream"
     chunks = iter(resp.response)
     assert next(chunks).startswith(b"retry:")
+    hello = next(chunks).decode()
+    assert hello.startswith("event: hello\ndata: ")
     first = next(chunks).decode()
     assert first.startswith("data: ")
     snap = json.loads(first[len("data: "):])
@@ -89,3 +91,11 @@ def test_web_server_skips_busy_port():
         server._server.server_close()
     finally:
         blocker.close()
+
+
+def test_build_id_changes_with_mission(tmp_path):
+    from rocket_demo.web.server import build_id
+
+    info = {"name": "AURORA"}
+    assert build_id(info) == build_id(dict(info))
+    assert build_id(info) != build_id({"name": "ORION"})

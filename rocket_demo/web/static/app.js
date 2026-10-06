@@ -40,6 +40,7 @@
   let prevState = null;
   const view = { alt: 0, t: 0 };
   let toastTimer = null;
+  let build = null;
 
   // ---------- inițializare ----------
   function makeStars() {
@@ -255,6 +256,11 @@
       $("conn").title = "Reconectare…";
     };
     es.onmessage = (e) => onSnapshot(JSON.parse(e.data));
+    // După o actualizare (git pull + repornirea serviciului) pagina se reîncarcă singură.
+    es.addEventListener("hello", (e) => {
+      if (build && e.data !== build) location.reload();
+      build = e.data;
+    });
   }
 
   const press = (button) => fetch("/api/press/" + button, { method: "POST" });
