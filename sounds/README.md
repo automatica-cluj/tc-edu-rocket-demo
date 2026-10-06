@@ -32,7 +32,7 @@ merge mai departe fără sunetul respectiv.
 
 - **Ascultă un sunet pe Pi:** `.venv/bin/python -m rocket_demo --play liftoff`.
   Toate pe rând: `--play all`. Oprește întâi serviciul:
-  `sudo systemctl stop rocket-demo`.
+  `systemctl --user stop rocket-demo`.
 - **Alte nume de fișiere:** dacă nu vrei să redenumești fișierele, completează
   `sound_files` în `rocket_demo/config.py`, de exemplu
   `{"liftoff": "apollo11_liftoff.mp3"}`.

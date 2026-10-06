@@ -23,7 +23,7 @@ Ghidul pentru oră (roluri, întrebări, explicații): [docs/ghid-profesor.md](d
 
 | Componentă | Observații |
 |---|---|
-| Raspberry Pi 3 Model B+, 4 sau 5 + card microSD ≥ 8 GB | Raspberry Pi OS **Lite** (64-bit), versiunea curentă |
+| Raspberry Pi 3 Model B+, 4 sau 5 + card microSD ≥ 8 GB | Raspberry Pi OS (64-bit): **Lite** (recomandat) sau cu desktop |
 | Alimentator | Pi 3B+: 5V/2,5A · Pi 4: 5V/3A · Pi 5: 5V/5A (27 W, oficial) |
 | LCD 1602 cu adaptor I2C (PCF8574) | 4 fire: GND, VCC, SDA, SCL |
 | 4 butoane | ideal mari, de tip „arcade”; ABORT roșu |
@@ -71,7 +71,9 @@ butoane ─── GND (39) (40)
 
 ## 3. Instalare pe Raspberry Pi
 
-1. Scrie pe card **Raspberry Pi OS Lite (64-bit)** cu Raspberry Pi Imager. În setări:
+1. Scrie pe card **Raspberry Pi OS Lite (64-bit)** cu Raspberry Pi Imager. Îl găsești la
+   *Choose OS* → *Raspberry Pi OS (other)*. Merge și varianta cu desktop (vezi mai jos).
+   În setări:
    - hostname `racheta`;
    - activează SSH;
    - completează rețeaua Wi-Fi.
@@ -96,10 +98,20 @@ butoane ─── GND (39) (40)
 5. Verifică hardware-ul:
 
    ```bash
-   sudo systemctl stop rocket-demo
+   systemctl --user stop rocket-demo
    .venv/bin/python -m rocket_demo --selftest   # LCD + sunet + fiecare buton
-   sudo systemctl start rocket-demo
+   systemctl --user start rocket-demo
    ```
+
+### Raspberry Pi OS cu desktop
+
+Demo-ul merge și pe varianta cu desktop. Diferențe:
+
+- **Sunetul** trece prin PipeWire. Ieșirea audio o alegi din iconița de volum de pe bara
+  desktopului (clic dreapta) sau din `raspi-config` → *System Options* → *Audio*.
+- **Pagina pe monitor:** `kiosk/setup-kiosk.sh` înlocuiește desktopul la pornire cu pagina
+  pe tot ecranul. `--remove` readuce desktopul.
+- Varianta cu desktop e mai grea; pe un Pi 3B+ pornește mai încet.
 
 ## 4. Utilizare
 
@@ -230,10 +242,10 @@ Pe acestea le verifici pe Pi, cu `--selftest`.
 | LCD-ul e aprins, dar nu apare text (sau apar pătrățele) | Rotește potențiometrul albastru de pe spatele LCD-ului (contrastul). |
 | „nu am găsit LCD-ul” | Verifică firele SDA/SCL. `i2cdetect -y 1` trebuie să arate `27` sau `3f`. Dacă e altă adresă: `--lcd-address 0x..`. |
 | Nu se aude nimic | Verifică alimentarea și volumul difuzorului. Rulează `speaker-test -c2 -t wav`; `aplay -l` arată plăcile audio. Alege ieșirea corectă din `raspi-config`: *Headphones* (Pi 3/4) sau placa USB (Pi 5). |
-| Sunetul iese pe HDMI | Creează `~/.asoundrc` cu `defaults.pcm.card Headphones` și `defaults.ctl.card Headphones`, apoi repornește serviciul. Pe Pi 5, în loc de `Headphones` pune numele plăcii USB afișat de `aplay -l`. |
+| Sunetul iese pe HDMI | Cu desktop: alege ieșirea din iconița de volum. Pe Lite: creează `~/.asoundrc` cu `defaults.pcm.card Headphones` și `defaults.ctl.card Headphones`, apoi repornește serviciul. Pe Pi 5, în loc de `Headphones` pune numele plăcii USB afișat de `aplay -l`. |
 | Un buton nu reacționează | `--selftest` afișează fiecare apăsare. Verifică pinul și legătura la GND. |
 | Pagina web nu se deschide | Pi-ul și calculatorul trebuie să fie în aceeași rețea. Încearcă IP-ul afișat pe LCD sau varianta hotspot. |
-| Ce face aplicația? | `journalctl -u rocket-demo -f` |
+| Ce face aplicația? | `journalctl --user-unit rocket-demo -f` (repornire: `systemctl --user restart rocket-demo`) |
 
 ## 9. Pentru dezvoltatori
 

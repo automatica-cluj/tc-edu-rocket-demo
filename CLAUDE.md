@@ -19,9 +19,9 @@ python3 -m pytest                            # all tests (pytest.ini sets testpa
 python3 -m pytest tests/test_controller.py::test_full_mission_with_stage_button
 ```
 
-On the Pi: `./install.sh` (apt packages, I2C, venv with `--system-site-packages`, systemd unit from `systemd/rocket-demo.service` with `@APP_DIR@`/`@USER@` substituted). Hardware check: `.venv/bin/python -m rocket_demo --selftest`; play a sound: `--play <key|all>`; logs: `journalctl -u rocket-demo -f`.
+On the Pi: `./install.sh` (apt packages, I2C, venv with `--system-site-packages`, then installs `systemd/rocket-demo.service` as a **user** unit in `~/.config/systemd/user/` with `@APP_DIR@` substituted, plus `loginctl enable-linger` so it starts at boot; a user unit is what gives it access to PipeWire audio on Raspberry Pi OS with desktop, and still uses plain ALSA on Lite). Hardware check: `.venv/bin/python -m rocket_demo --selftest`; play a sound: `--play <key|all>`; manage with `systemctl --user stop|start|restart rocket-demo`; logs: `journalctl --user-unit rocket-demo -f`.
 
-Optional HDMI kiosk (Pi 4/5, OS Lite): `kiosk/setup-kiosk.sh` installs `cage` + Chromium, enables console autologin and appends a marked block to `~/.profile` that `exec`s `kiosk/start-kiosk.sh` on tty1 (waits for `/api/state`, then runs Chromium full-screen on `/?kiosk=1`, which hides the cursor). `--remove` undoes it.
+Optional HDMI kiosk (Pi 4/5, Lite or desktop): `kiosk/setup-kiosk.sh` installs `cage` + Chromium, enables console autologin and appends a marked block to `~/.profile` that `exec`s `kiosk/start-kiosk.sh` on tty1 (waits for `/api/state`, then runs Chromium full-screen on `/?kiosk=1`, which hides the cursor). `--remove` undoes it (back to desktop autologin if `lightdm` is installed, else console login).
 
 ## Architecture
 
