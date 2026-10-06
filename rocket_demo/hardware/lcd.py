@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 import time
 
@@ -88,6 +89,8 @@ class TerminalDisplay:
     def __init__(self, stream=None):
         self._stream = stream or sys.stdout
         self._tty = self._stream.isatty()
+        if self._tty and sys.platform == "win32":
+            os.system("")  # activează codurile ANSI în consola Windows
         self._last: tuple[str, str] | None = None
         self._drawn = False
 

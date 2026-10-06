@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import logging
 import queue
 import signal
@@ -34,8 +35,10 @@ def local_ip() -> str | None:
             pass
     try:
         out = subprocess.run(["hostname", "-I"], capture_output=True, text=True, timeout=2)
-        return (out.stdout.split() or [None])[0]
-    except (OSError, subprocess.SubprocessError):
+        ip = (out.stdout.split() or [""])[0]
+        ipaddress.ip_address(ip)
+        return ip
+    except (OSError, subprocess.SubprocessError, ValueError):
         return None
 
 

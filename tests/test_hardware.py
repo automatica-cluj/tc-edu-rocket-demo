@@ -70,3 +70,18 @@ def test_placeholder_generator(tmp_path):
     with wave.open(str(tmp_path / "countdown.wav")) as w:
         assert w.getframerate() == gen.RATE
         assert 9.9 < w.getnframes() / w.getframerate() < 10.1
+
+
+def test_keyboard_buttons_map_keys():
+    import time
+
+    from rocket_demo.hardware.buttons import KeyboardButtons
+
+    pressed = []
+    buttons = KeyboardButtons(pressed.append, stream=io.StringIO("gLsxaRq"))
+    for _ in range(50):
+        if len(pressed) == 6:
+            break
+        time.sleep(0.01)
+    buttons.close()
+    assert pressed == ["go", "launch", "stage", "abort", "reset", "quit"]

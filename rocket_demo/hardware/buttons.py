@@ -49,7 +49,8 @@ class KeyboardButtons:
         self._on_press = on_press
         self._stream = stream or sys.stdin
         self._saved_tty = None
-        if self._stream.isatty():
+        self._windows_console = sys.platform == "win32" and self._stream.isatty()
+        if self._stream.isatty() and not self._windows_console:
             import termios
             import tty
 
@@ -59,8 +60,14 @@ class KeyboardButtons:
         threading.Thread(target=self._read, name="keyboard", daemon=True).start()
 
     def _read(self) -> None:
+        if self._windows_console:
+            import msvcrt
+
+            read_key = msvcrt.getwch
+        else:
+            read_key = lambda: self._stream.read(1)  # noqa: E731
         while True:
-            ch = self._stream.read(1)
+            ch = read_key()
             if not ch:
                 return
             name = self.KEYS.get(ch.lower())

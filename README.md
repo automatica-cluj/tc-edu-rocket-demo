@@ -153,16 +153,44 @@ unul: `.venv/bin/python -m rocket_demo --play liftoff`.
   `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--port 8080`,
   `--lcd-address 0x3F`.
 
-## 7. Rulare pe laptop (fără hardware)
+## 7. Rulare pe laptop (fără Raspberry Pi)
 
-```bash
-pip install -r requirements.txt
-python3 tools/make_placeholder_sounds.py
-python3 -m rocket_demo --sim
-```
+Merge pe Windows, macOS și Linux, cu Python 3.10 sau mai nou (de pe python.org; pe
+Windows bifează „Add python.exe to PATH”).
 
-LCD-ul apare în terminal, iar butoanele sunt taste: `g`=GO, `l`=LAUNCH, `s`=STAGE,
-`a`=ABORT, `r`=RESET, `q`=ieșire. Pagina web: http://localhost:8000/?control=1
+1. Descarcă proiectul: `git clone` sau, de pe GitHub, *Code → Download ZIP*.
+2. Deschide un terminal în directorul proiectului. Pe Windows e PowerShell, iar
+   comanda e `python` în loc de `python3`.
+3. Rulează:
+
+   ```bash
+   python3 -m venv .venv
+   # Windows:      .venv\Scripts\activate
+   # macOS/Linux:  source .venv/bin/activate
+   pip install -r requirements.txt
+   python3 tools/make_placeholder_sounds.py
+   python3 -m rocket_demo --sim
+   ```
+
+   Mediul virtual (`.venv`) e opțional. Dacă PowerShell refuză comanda `activate`,
+   sari peste primele două linii.
+
+Ce primești în modul `--sim`:
+
+- **LCD-ul** este desenat în terminal.
+- **Butoanele** sunt taste: `g`=GO, `l`=LAUNCH, `s`=STAGE, `a`=ABORT, `r`=RESET, `q`=ieșire.
+- **Sunetul** iese prin difuzoarele laptopului.
+- **Pagina web** se deschide la http://localhost:8000/?control=1. Are și butoane pe ecran.
+- **De pe telefon sau alt calculator** din aceeași rețea: `http://<IP-ul laptopului>:8000`.
+  Pe Windows, permite accesul când întreabă firewall-ul.
+
+Opțiuni utile la testare:
+
+- `--time-scale 20` face zborul să dureze sub 30 de secunde.
+- `--no-hold` scoate HOLD-urile aleatoare.
+
+Modul `--sim` nu testează firele: LCD-ul I2C, butoanele GPIO și ieșirea audio pe jack.
+Pe acestea le verifici pe Pi, cu `--selftest`.
 
 ## 8. Depanare
 
