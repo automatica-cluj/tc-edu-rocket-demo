@@ -113,6 +113,35 @@ Demo-ul merge și pe varianta cu desktop. Diferențe:
   pe tot ecranul. `--remove` readuce desktopul.
 - Varianta cu desktop e mai grea; pe un Pi 3B+ pornește mai încet.
 
+### Boxă Bluetooth (Raspberry Pi OS cu desktop)
+
+1. Pune boxa în modul de împerechere (pairing), apoi pe Pi:
+
+   ```bash
+   bluetoothctl
+   power on
+   scan on        # aștepți să apară boxa, ex. „Device 12:34:56:78:9A:BC JBL Flip 5”
+   scan off
+   pair 12:34:56:78:9A:BC
+   trust 12:34:56:78:9A:BC
+   connect 12:34:56:78:9A:BC
+   exit
+   ```
+
+   Dacă ai monitor la Pi, poți face același lucru din iconița Bluetooth de pe bara desktopului.
+2. Fă boxa ieșirea implicită:
+   - `wpctl status` afișează lista *Sinks*; boxa apare cu un număr (ID) în față;
+   - `wpctl set-default <ID>`.
+3. Testează: `.venv/bin/python -m rocket_demo --play liftoff`.
+
+De știut:
+
+- Sunetul pe Bluetooth vine cu o mică întârziere (~0,2 s) față de LCD.
+- Multe boxe se închid singure după câteva minute de liniște. Dacă se deconectează:
+  `bluetoothctl connect 12:34:56:78:9A:BC`.
+- Pi-ul trebuie să pornească cu login automat. Desktopul face asta implicit, iar modul kiosk
+  la fel. Altfel Bluetooth-ul audio nu e activ.
+
 ## 4. Utilizare
 
 1. La pornire, LCD-ul arată „MISIUNE AURORA / Apasa GO”, alternând cu adresa paginii
