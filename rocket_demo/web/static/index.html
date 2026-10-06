@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lansare rachetă</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main class="layout">
+  <section class="scene-wrap" aria-label="Animația lansării">
+    <svg id="scene" viewBox="0 0 600 600" preserveAspectRatio="xMidYMax meet" role="img"
+         aria-label="Racheta pe rampa de lansare">
+      <defs>
+        <linearGradient id="sky-grad" gradientUnits="userSpaceOnUse" x1="0" y1="-600" x2="0" y2="600">
+          <stop id="sky-top" offset="0" stop-color="#3d8fd6"/>
+          <stop id="sky-bottom" offset="1" stop-color="#a9dcff"/>
+        </linearGradient>
+        <radialGradient id="earth-grad" cx="0.5" cy="0" r="0.6">
+          <stop offset="0" stop-color="#3f8fe0"/>
+          <stop offset="1" stop-color="#123d7a"/>
+        </radialGradient>
+        <linearGradient id="flame-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff6c2"/>
+          <stop offset="0.35" stop-color="#ffb02e"/>
+          <stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="vac-flame-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f2f7ff"/>
+          <stop offset="0.4" stop-color="#8fb7ff"/>
+          <stop offset="1" stop-color="#5b7dff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+
+      <rect x="-2000" y="-2000" width="4600" height="4000" fill="url(#sky-grad)"/>
+      <g id="stars"></g>
+      <g id="earth" opacity="0">
+        <circle cx="300" cy="2100" r="1500" fill="url(#earth-grad)"
+                stroke="#9fd4ff" stroke-width="10" stroke-opacity="0.55"/>
+      </g>
+
+      <g id="world">
+        <g class="clouds" fill="#ffffff" fill-opacity="0.85">
+          <g transform="translate(150 320)"><ellipse rx="70" ry="18"/><ellipse cx="30" cy="-12" rx="40" ry="18"/></g>
+          <g transform="translate(470 180)"><ellipse rx="90" ry="20"/><ellipse cx="-30" cy="-14" rx="45" ry="20"/></g>
+          <g transform="translate(240 -40)"><ellipse rx="110" ry="22"/><ellipse cx="40" cy="-15" rx="50" ry="22"/></g>
+          <g transform="translate(-60 -260)"><ellipse rx="120" ry="20"/></g>
+          <g transform="translate(560 -300)"><ellipse rx="100" ry="18"/></g>
+        </g>
+        <rect x="-2000" y="560" width="4600" height="1200" fill="#4f7a3a"/>
+        <rect x="-2000" y="560" width="4600" height="6" fill="#3d612c"/>
+        <rect x="240" y="545" width="120" height="16" fill="#8a8f99"/>
+        <g id="tower" stroke="#c9483b" stroke-width="3" fill="none">
+          <rect x="345" y="290" width="16" height="255"/>
+          <path d="M345 290 L361 330 L345 370 L361 410 L345 450 L361 490 L345 530"/>
+          <path d="M345 360 H322 M345 420 H322"/>
+        </g>
+        <g id="smoke" fill="#e9e9ee">
+          <circle cx="270" cy="548" r="22"/><circle cx="330" cy="548" r="26"/>
+          <circle cx="235" cy="552" r="18"/><circle cx="368" cy="552" r="20"/>
+          <circle cx="300" cy="556" r="28"/>
+        </g>
+      </g>
+
+      <g id="rocket" transform="translate(300 545)">
+        <g id="shake">
+          <g id="stack">
+            <g id="booster" class="part">
+              <path class="flame" id="flame1" d="M-10 0 Q-6 40 0 85 Q6 40 10 0 Z" fill="url(#flame-grad)"/>
+              <rect x="-11" y="-128" width="22" height="128" fill="#f3f5f9" stroke="#b8c0cf"/>
+              <rect x="-11" y="-128" width="22" height="9" fill="#2b3140"/>
+              <rect x="-11" y="-70" width="22" height="6" fill="#2b3140"/>
+              <path d="M-11 0 L-24 0 L-11 -26 Z M11 0 L24 0 L11 -26 Z" fill="#2b3140"/>
+              <text x="0" y="-92" text-anchor="middle" font-size="9" font-weight="700" fill="#2b3140"
+                    transform="rotate(-90 0 -92)">ROMANIA</text>
+            </g>
+            <g id="stage2" class="part">
+              <path class="flame" id="flame2" d="M-8 -118 Q-4 -80 0 -40 Q4 -80 8 -118 Z" fill="url(#vac-flame-grad)"/>
+              <path d="M-6 -128 L6 -128 L9 -118 L-9 -118 Z" fill="#555c6b"/>
+              <rect x="-11" y="-176" width="22" height="48" fill="#f3f5f9" stroke="#b8c0cf"/>
+            </g>
+          </g>
+          <g id="capsule" class="part">
+            <g id="chute" opacity="0">
+              <path d="M-10 -200 L-34 -262 M10 -200 L34 -262 M0 -200 L0 -272" stroke="#d5d9e2" stroke-width="1.5"/>
+              <path d="M-38 -258 Q0 -318 38 -258 Z" fill="#ff7a29"/>
+              <path d="M-13 -258 Q0 -312 13 -258 Z" fill="#ffffff"/>
+            </g>
+            <path d="M-11 -176 L11 -176 L5 -200 L-5 -200 Z" fill="#dfe5ef" stroke="#a9b2c3"/>
+            <rect x="-3" y="-191" width="6" height="5" rx="1" fill="#2f6fc0"/>
+            <g id="les" class="part">
+              <rect x="-1.5" y="-228" width="3" height="28" fill="#7a808c"/>
+              <path d="M-5 -228 L5 -228 L0 -240 Z" fill="#c9483b"/>
+              <rect x="-4" y="-222" width="8" height="7" fill="#c9483b"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+
+    <div class="lcd" title="Ce arată ecranul LCD"><div id="lcd1"></div><div id="lcd2"></div></div>
+    <div id="big-count" class="big-count" hidden></div>
+    <div id="toast" class="toast" hidden></div>
+    <div id="stage-banner" class="stage-banner" hidden>APASĂ STAGE!</div>
+  </section>
+
+  <aside class="panel">
+    <header class="panel-head">
+      <div class="mission">Misiunea <strong id="mission-name">…</strong></div>
+      <div id="conn" class="conn off" title="Se conectează…"></div>
+    </header>
+
+    <div class="clock-row">
+      <div id="clock" class="clock">T-0:10</div>
+      <div id="state" class="state" data-state="idle">Pregătire</div>
+    </div>
+
+    <div class="gauges">
+      <div class="gauge">
+        <div class="gauge-label">Altitudine</div>
+        <div class="gauge-value"><span id="alt">0</span> <small>km</small></div>
+        <div class="bar"><i id="alt-bar"></i></div>
+      </div>
+      <div class="gauge">
+        <div class="gauge-label">Viteză</div>
+        <div class="gauge-value"><span id="vel">0</span> <small>km/h</small></div>
+        <div class="bar"><i id="vel-bar"></i></div>
+      </div>
+    </div>
+
+    <article class="info">
+      <div class="info-kicker">Știai că…?</div>
+      <h2 id="info-title"></h2>
+      <p id="info-text"></p>
+    </article>
+
+    <ol id="checks" class="list"></ol>
+    <ol id="timeline" class="list" hidden></ol>
+
+    <div id="controls" class="controls" hidden>
+      <button data-btn="go" class="btn go">GO</button>
+      <button data-btn="launch" class="btn launch">LAUNCH</button>
+      <button data-btn="stage" class="btn stage">STAGE</button>
+      <button data-btn="abort" class="btn abort">ABORT</button>
+      <button data-btn="reset" class="btn reset">RESET</button>
+    </div>
+  </aside>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

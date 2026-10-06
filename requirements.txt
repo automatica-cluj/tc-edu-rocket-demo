@@ -1,0 +1,7 @@
+# Pe Raspberry Pi, install.sh instalează acestea prin apt + pip.
+# Pe laptop (modul --sim) ajunge:  pip install -r requirements.txt
+flask>=2.2
+pygame>=2.1
+gpiozero>=1.6
+RPLCD>=1.3
+smbus2>=0.4
