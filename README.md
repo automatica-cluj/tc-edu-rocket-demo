@@ -23,11 +23,15 @@ Ghidul pentru oră (roluri, întrebări, explicații): [docs/ghid-profesor.md](d
 
 | Componentă | Observații |
 |---|---|
-| Raspberry Pi 3 Model B+ (sau mai nou) + card microSD ≥ 8 GB | Raspberry Pi OS **Lite** (Bookworm) |
+| Raspberry Pi 3 Model B+, 4 sau 5 + card microSD ≥ 8 GB | Raspberry Pi OS **Lite** (64-bit), versiunea curentă |
+| Alimentator | Pi 3B+: 5V/2,5A · Pi 4: 5V/3A · Pi 5: 5V/5A (27 W, oficial) |
 | LCD 1602 cu adaptor I2C (PCF8574) | 4 fire: GND, VCC, SDA, SCL |
 | 4 butoane | ideal mari, de tip „arcade”; ABORT roșu |
-| Difuzor activ (cu alimentare proprie) | în mufa jack 3,5 mm |
+| Difuzor activ (cu alimentare proprie) | Pi 3/4: în mufa jack 3,5 mm. **Pi 5 nu are jack**: folosește o placă de sunet USB (adaptor USB → jack 3,5 mm) sau un difuzor USB. |
 | Breadboard, T-cobbler, fire | |
+
+**Raspberry Pi 5:** codul e același. Pinii GPIO, I2C-ul și butoanele sunt identice. Diferențele sunt
+doar de hardware: sunetul merge printr-o placă de sunet USB, iar alimentatorul trebuie să fie de 5A.
 
 ## 2. Cablare
 
@@ -87,7 +91,7 @@ butoane ─── GND (39) (40)
    - generează sunete provizorii;
    - pornește demo-ul automat la fiecare boot.
 3. Alege ieșirea audio: `sudo raspi-config` → *System Options* → *Audio* →
-   **Headphones**.
+   **Headphones** (jack-ul de pe Pi 3/4) sau placa de sunet **USB** (Pi 5).
 4. Repornește Pi-ul: `sudo reboot`.
 5. Verifică hardware-ul:
 
@@ -191,7 +195,7 @@ Opțiuni utile la testare:
 - `--time-scale 20` face zborul să dureze sub 30 de secunde.
 - `--no-hold` scoate HOLD-urile aleatoare.
 
-Modul `--sim` nu testează firele: LCD-ul I2C, butoanele GPIO și ieșirea audio pe jack.
+Modul `--sim` nu testează firele: LCD-ul I2C, butoanele GPIO și ieșirea audio a Pi-ului.
 Pe acestea le verifici pe Pi, cu `--selftest`.
 
 ## 8. Depanare
@@ -200,8 +204,8 @@ Pe acestea le verifici pe Pi, cu `--selftest`.
 |---|---|
 | LCD-ul e aprins, dar nu apare text (sau apar pătrățele) | Rotește potențiometrul albastru de pe spatele LCD-ului (contrastul). |
 | „nu am găsit LCD-ul” | Verifică firele SDA/SCL. `i2cdetect -y 1` trebuie să arate `27` sau `3f`. Dacă e altă adresă: `--lcd-address 0x..`. |
-| Nu se aude nimic | Verifică alimentarea și volumul difuzorului. Rulează `speaker-test -c2 -t wav`; `aplay -l` arată plăcile audio. Alege *Headphones* din `raspi-config`. |
-| Sunetul iese pe HDMI | Creează `~/.asoundrc` cu `defaults.pcm.card Headphones` și `defaults.ctl.card Headphones`, apoi repornește serviciul. |
+| Nu se aude nimic | Verifică alimentarea și volumul difuzorului. Rulează `speaker-test -c2 -t wav`; `aplay -l` arată plăcile audio. Alege ieșirea corectă din `raspi-config`: *Headphones* (Pi 3/4) sau placa USB (Pi 5). |
+| Sunetul iese pe HDMI | Creează `~/.asoundrc` cu `defaults.pcm.card Headphones` și `defaults.ctl.card Headphones`, apoi repornește serviciul. Pe Pi 5, în loc de `Headphones` pune numele plăcii USB afișat de `aplay -l`. |
 | Un buton nu reacționează | `--selftest` afișează fiecare apăsare. Verifică pinul și legătura la GND. |
 | Pagina web nu se deschide | Pi-ul și calculatorul trebuie să fie în aceeași rețea. Încearcă IP-ul afișat pe LCD sau varianta hotspot. |
 | Ce face aplicația? | `journalctl -u rocket-demo -f` |

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Instalează demo-ul pe Raspberry Pi OS (Bookworm) și îl pornește automat la boot.
+# Instalează demo-ul pe Raspberry Pi OS (Bookworm sau mai nou; Pi 3B+, 4 sau 5) și îl pornește automat la boot.
 # Rulează ca utilizatorul obișnuit (nu cu sudo):  ./install.sh
 set -euo pipefail
 
@@ -32,7 +32,7 @@ sudo systemctl enable rocket-demo.service
 cat <<EOF
 
 Gata! Pași următori:
-  1. Alege ieșirea audio „Headphones” (jack 3,5 mm):
+  1. Alege ieșirea audio: „Headphones” (jack 3,5 mm, Pi 3/4) sau placa de sunet USB (Pi 5):
        sudo raspi-config  ->  System Options -> Audio
   2. Repornește Pi-ul:  sudo reboot
   3. Verifică hardware-ul (oprește întâi serviciul):

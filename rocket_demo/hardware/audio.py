@@ -1,4 +1,4 @@
-"""Sunet prin pygame.mixer (ALSA → mufa jack 3,5 mm → difuzor activ)."""
+"""Sunet prin pygame.mixer (ALSA → jack 3,5 mm sau placă de sunet USB → difuzor activ)."""
 
 from __future__ import annotations
 
