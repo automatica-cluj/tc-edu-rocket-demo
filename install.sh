@@ -40,4 +40,5 @@ Gata! Pași următori:
        $APP_DIR/.venv/bin/python -m rocket_demo --selftest
        sudo systemctl start rocket-demo
   Jurnalul aplicației:  journalctl -u rocket-demo -f
+  Pagina pe un monitor legat la Pi (Pi 4/5):  $APP_DIR/kiosk/setup-kiosk.sh
 EOF

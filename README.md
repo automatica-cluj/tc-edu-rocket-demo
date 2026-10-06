@@ -136,6 +136,31 @@ Deschide în browser, pe un calculator din aceeași rețea:
     Conectează laptopul la rețeaua „Racheta” și deschide `http://10.42.0.1:8000`.
   - **Cablu Ethernet direct** între Pi și laptop, apoi `http://racheta.local:8000`.
 
+### Pagina pe un monitor legat direct la Pi (fără laptop)
+
+Pe **Raspberry Pi 4 sau 5**, Pi-ul poate afișa singur pagina pe tot ecranul unui monitor
+sau televizor legat prin HDMI. Nu ai nevoie de desktop, tastatură sau mouse. Pi 3B+ e prea
+lent pentru asta; acolo deschide pagina de pe un laptop.
+
+1. Leagă monitorul la portul **HDMI 0**, cel de lângă alimentare. Pe Pi 4/5 ai nevoie de
+   un cablu micro-HDMI → HDMI.
+2. După `./install.sh`, rulează o singură dată:
+
+   ```bash
+   ./kiosk/setup-kiosk.sh
+   sudo reboot
+   ```
+
+   Scriptul instalează Chromium și `cage`, un program mic care afișează o singură
+   aplicație pe tot ecranul. Apoi pornește login-ul automat în consolă, iar la fiecare
+   boot pagina se deschide singură, fără cursor.
+3. Ce poți face după:
+   - **Consolă de login pe Pi:** Ctrl+Alt+F2. Înapoi la pagină: Ctrl+Alt+F1. Merge și
+     prin SSH, ca de obicei.
+   - **Dezactivare:** `./kiosk/setup-kiosk.sh --remove`, apoi `sudo reboot`.
+   - **Sunet prin monitor:** dacă monitorul are difuzoare, poți folosi sunetul pe HDMI în
+     locul plăcii USB. Îl alegi din `raspi-config` → *System Options* → *Audio*.
+
 ## 5. Sunete
 
 Pune sample-urile în `sounds/` cu numele din [sounds/README.md](sounds/README.md), de

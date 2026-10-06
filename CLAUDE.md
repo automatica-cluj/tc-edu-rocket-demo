@@ -21,6 +21,8 @@ python3 -m pytest tests/test_controller.py::test_full_mission_with_stage_button
 
 On the Pi: `./install.sh` (apt packages, I2C, venv with `--system-site-packages`, systemd unit from `systemd/rocket-demo.service` with `@APP_DIR@`/`@USER@` substituted). Hardware check: `.venv/bin/python -m rocket_demo --selftest`; play a sound: `--play <key|all>`; logs: `journalctl -u rocket-demo -f`.
 
+Optional HDMI kiosk (Pi 4/5, OS Lite): `kiosk/setup-kiosk.sh` installs `cage` + Chromium, enables console autologin and appends a marked block to `~/.profile` that `exec`s `kiosk/start-kiosk.sh` on tty1 (waits for `/api/state`, then runs Chromium full-screen on `/?kiosk=1`, which hides the cursor). `--remove` undoes it.
+
 ## Architecture
 
 - **`controller.py` — the core.** A single-threaded state machine (`State`: idle → checks ⇄ hold → ready → countdown → flight → orbit, plus scrub/abort end states). Button sources (GPIO callbacks, keyboard thread, web POSTs) only call `press()`, which enqueues; the main loop calls `tick()` ~10×/s, which drains the queue, advances time, renders the LCD and publishes a snapshot dict. Flight time is `real elapsed × cfg.time_scale`; events fire when `_flight_t` passes `FlightEvent.t`. An event with `needs_stage` pauses the flight clock until STAGE is pressed or `stage_window_s` expires (unless pre-armed within `stage_early_s`). Holding ABORT for `reset_hold_s` emits a `reset` button.

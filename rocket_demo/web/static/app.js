@@ -29,7 +29,10 @@
   const ROCKET_RISE = 150;
   const PAD_Y = 545;
 
-  const showControls = new URLSearchParams(location.search).has("control");
+  const params = new URLSearchParams(location.search);
+  const showControls = params.has("control");
+  // ?kiosk=1: afișare pe monitorul legat la Pi, fără cursor
+  if (params.has("kiosk")) document.body.classList.add("kiosk");
 
   let mission = null;
   let snap = null;
