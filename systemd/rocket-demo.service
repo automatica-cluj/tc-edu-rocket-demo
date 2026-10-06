@@ -1,0 +1,17 @@
+[Unit]
+Description=Demo lansare racheta (rocket_demo)
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+User=@USER@
+SupplementaryGroups=audio gpio i2c
+WorkingDirectory=@APP_DIR@
+Environment=PYTHONUNBUFFERED=1
+Environment=SDL_AUDIODRIVER=alsa
+ExecStart=@APP_DIR@/.venv/bin/python -m rocket_demo
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
