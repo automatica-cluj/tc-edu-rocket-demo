@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import socket
 import threading
 from pathlib import Path
 
@@ -81,14 +82,45 @@ def create_app(controller: Controller, cfg: Config) -> Flask:
     return app
 
 
+PORT_ATTEMPTS = 10
+
+
+def port_in_use(port: int) -> bool:
+    """True dacă alt program răspunde deja pe acest port (IPv4 sau IPv6)."""
+    for host in ("127.0.0.1", "::1"):
+        try:
+            with socket.create_connection((host, port), timeout=0.3):
+                return True
+        except OSError:
+            continue
+    return False
+
+
 class WebServer:
-    """Rulează serverul Flask într-un thread separat de bucla principală."""
+    """Rulează serverul Flask într-un thread separat de bucla principală.
+
+    Dacă portul ales e ocupat de alt program, încearcă următoarele porturi și
+    actualizează `cfg.web_port` (LCD-ul afișează portul real).
+    """
 
     def __init__(self, controller: Controller, cfg: Config):
         logging.getLogger("werkzeug").setLevel(logging.WARNING)
-        self._server = make_server(
-            cfg.web_host, cfg.web_port, create_app(controller, cfg), threaded=True
-        )
+        app = create_app(controller, cfg)
+        wanted = cfg.web_port
+        for port in range(wanted, wanted + PORT_ATTEMPTS):
+            if port_in_use(port):
+                continue
+            try:
+                self._server = make_server(cfg.web_host, port, app, threaded=True)
+            except OSError:
+                continue
+            break
+        else:
+            raise OSError(f"porturile {wanted}-{wanted + PORT_ATTEMPTS - 1} sunt ocupate")
+        if port != wanted:
+            log.warning("portul %d e ocupat de alt program; folosesc portul %d", wanted, port)
+        cfg.web_port = port
+        self.port = port
         self._thread = threading.Thread(
             target=self._server.serve_forever, name="web", daemon=True
         )
