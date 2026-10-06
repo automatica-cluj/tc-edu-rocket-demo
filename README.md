@@ -167,6 +167,13 @@ Deschide în browser, pe un calculator din aceeași rețea:
 - Cu `http://racheta.local:8000/?control=1` apar și butoane virtuale (GO, LAUNCH,
   STAGE, ABORT, RESET). Sunt utile la teste sau dacă un buton fizic nu merge. Le poți
   dezactiva cu `web_control = False` în `config.py`.
+- **Control din tastatură:** cu pagina deschisă, tastele **G**=GO, **L**=LAUNCH,
+  **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele. Merge din browserul de pe
+  laptop și pe monitorul Pi-ului, cu o tastatură USB legată la Pi (și în modul kiosk).
+- **Din terminal, cu LCD-ul și butoanele reale:**
+  1. `systemctl --user stop rocket-demo`;
+  2. `.venv/bin/python -m rocket_demo --keyboard` (aceleași taste, `q` = ieșire);
+  3. `systemctl --user start rocket-demo`.
 - **Dacă rețeaua școlii nu permite** conexiunea între dispozitive, ai două variante.
   - **Pi-ul creează propria rețea Wi-Fi:**
 
@@ -221,7 +228,7 @@ unul: `.venv/bin/python -m rocket_demo --play liftoff`.
   pe pagina web, sunetul fiecărei etape. Fișierul conține doar date.
 - **Opțiuni din linia de comandă** (`python -m rocket_demo --help`): `--no-hold`,
   `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--port 8080`,
-  `--lcd-address 0x3F`.
+  `--lcd-address 0x3F`, `--keyboard`.
 
 ## 7. Rulare pe laptop (fără Raspberry Pi)
 
