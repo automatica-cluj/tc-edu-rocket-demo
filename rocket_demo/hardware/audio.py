@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 EXTENSIONS = (".wav", ".ogg", ".mp3")
 ENGINE_KEY = "engine_loop"
+APP_NAME = "Demo racheta"
 WATCH_S = 5.0
 
 
@@ -62,6 +63,10 @@ class Audio:
         watch_s: float | None = WATCH_S,
     ):
         os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
+        # Nume propriu în PipeWire (`wpctl status`), ca volumul demo-ului să nu fie
+        # amestecat cu al altor programe Python.
+        os.environ.setdefault("SDL_APP_NAME", APP_NAME)
+        os.environ.setdefault("SDL_AUDIO_DEVICE_APP_NAME", APP_NAME)
         import pygame
 
         self._pygame = pygame

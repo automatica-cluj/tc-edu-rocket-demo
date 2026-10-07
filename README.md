@@ -143,7 +143,10 @@ De știut:
 - **Dacă nu se aude demo-ul** (dar alte programe se aud):
   - `journalctl --user-unit rocket-demo -b | grep -i sunet` arată pe ce ieșire s-au
     încărcat sunetele și eventualele erori;
-  - `wpctl status` arată la *Streams* dacă demo-ul (Python/SDL) e legat de boxă;
+  - `wpctl status` arată la *Streams* dacă demo-ul („Demo racheta”) e legat de boxă;
+  - volumul demo-ului e separat de al boxei și sistemul îl ține minte. Vezi-l cu
+    `wpctl get-volume <ID>` (ID-ul din dreptul „Demo racheta”). Dacă e `0.00` sau
+    `[MUTED]`: `wpctl set-mute <ID> 0` și `wpctl set-volume <ID> 1.0`;
   - ca soluție rapidă: `systemctl --user restart rocket-demo`.
 - Pi-ul trebuie să pornească cu login automat. Desktopul face asta implicit, iar modul kiosk
   la fel. Altfel Bluetooth-ul audio nu e activ.
