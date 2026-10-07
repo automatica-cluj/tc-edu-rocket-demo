@@ -138,7 +138,13 @@ De știut:
 
 - Sunetul pe Bluetooth vine cu o mică întârziere (~0,2 s) față de LCD.
 - Multe boxe se închid singure după câteva minute de liniște. Dacă se deconectează:
-  `bluetoothctl connect 12:34:56:78:9A:BC`.
+  `bluetoothctl connect 12:34:56:78:9A:BC`. După reconectare, demo-ul observă singur
+  noua ieșire audio și își redeschide sunetul în ~5 secunde. Nu trebuie repornit.
+- **Dacă nu se aude demo-ul** (dar alte programe se aud):
+  - `journalctl --user-unit rocket-demo -b | grep -i sunet` arată pe ce ieșire s-au
+    încărcat sunetele și eventualele erori;
+  - `wpctl status` arată la *Streams* dacă demo-ul (Python/SDL) e legat de boxă;
+  - ca soluție rapidă: `systemctl --user restart rocket-demo`.
 - Pi-ul trebuie să pornească cu login automat. Desktopul face asta implicit, iar modul kiosk
   la fel. Altfel Bluetooth-ul audio nu e activ.
 
