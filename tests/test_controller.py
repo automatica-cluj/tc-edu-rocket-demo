@@ -282,3 +282,33 @@ def test_abort_still_scrubs_during_checks(h):
     h.press("go", "abort")
     assert h.state == "scrub"
     assert h.ctrl.snapshot()["voice_on"] is True
+
+
+def test_abort_on_end_screen_toggles_voice_after_grace(h):
+    from rocket_demo.controller import END_ABORT_GRACE_S
+
+    h.go_to_flight()
+    h.press("abort")  # abort în zbor
+    assert h.state == "abort"
+    h.press("abort")  # apăsat din nou imediat: nu schimbă vocea
+    assert h.ctrl.snapshot()["voice_on"] is True
+    h.run(END_ABORT_GRACE_S)
+    h.press("abort")
+    assert h.state == "abort"
+    assert h.ctrl.snapshot()["voice_on"] is False
+    assert h.display.last[1].strip() == "Voce: OPRITA"
+    h.press("go")  # misiunea nouă pornește fără voce
+    assert h.state == "checks"
+    assert h.audio.voiced[-1] is None
+
+
+def test_abort_on_orbit_screen_toggles_voice(h):
+    h.cfg.interactive_stage = False
+    h.go_to_flight()
+    h.run_until(lambda: h.state == "orbit")
+    h.run(3)
+    h.press("abort")
+    assert h.ctrl.snapshot()["voice_on"] is False
+    h.press("abort")
+    assert h.ctrl.snapshot()["voice_on"] is True
+    assert h.audio.voiced[-1] == "stare_orbit"  # citește din nou ecranul curent

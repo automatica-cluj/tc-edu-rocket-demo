@@ -167,8 +167,9 @@ De știut:
      capsula.
 5. Pe orbită, după abort sau după un scrub, **GO** pornește o misiune nouă.
 6. **Ținând ABORT apăsat 3 secunde**, demo-ul se resetează (util pentru profesor).
-7. **ABORT apăsat scurt în ecranul de start** oprește sau pornește vocea care citește
-   explicațiile. LCD-ul arată „Voce: OPRITA” / „Voce: PORNITA”, apoi „GO >> fara voce”
+7. **ABORT apăsat scurt în ecranul de start sau pe ecranul final** (orbită, abort,
+   scrub) oprește sau pornește vocea care citește explicațiile. Pe ecranul final merge
+   la 2 secunde după ce a apărut. LCD-ul arată „Voce: OPRITA” / „Voce: PORNITA”, apoi „GO >> fara voce”
    cât timp vocea e oprită; pagina web arată același lucru. Alegerea rămâne valabilă de
    la o misiune la alta, până la repornirea demo-ului.
 
@@ -253,7 +254,8 @@ față de ele.
 - Zborul și HOLD-ul **așteaptă să se termine explicația** înainte de etapa următoare,
   ca elevii să audă tot. Cu toate vocile, zborul durează ~3 minute în loc de ~2.
   Fără așteptare: `voice_wait = False` în `config.py`.
-- Fără voce: ABORT apăsat scurt în ecranul de start (din nou, ca s-o pornești), sau
+- Fără voce: ABORT apăsat scurt în ecranul de start sau pe cel final (din nou, ca s-o
+  pornești), sau
   `--no-voice` la pornire. Fișierele care lipsesc sunt sărite.
 - Ascultă una: `--play etapa_liftoff`; toate: `--play voce`.
 - După ce schimbi textele din `mission.py`, schimbă și traducerea din

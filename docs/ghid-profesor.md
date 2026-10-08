@@ -13,7 +13,8 @@ la butoane. Poți încheia cu o misiune în care declanșezi intenționat un ABO
 - **Ofițerul de siguranță:** singurul care are voie să apese **ABORT**.
 
 Vrei să explici tu, fără vocea care citește explicațiile? Apasă scurt **ABORT** în
-ecranul de start: pe LCD apare „Voce: OPRITA”. Încă o apăsare o pornește din nou.
+ecranul de start sau pe ecranul de la finalul misiunii: pe LCD apare „Voce: OPRITA”.
+Încă o apăsare o pornește din nou.
 
 ## Pe etape: ce explicăm și ce întrebăm
 

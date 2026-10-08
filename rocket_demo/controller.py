@@ -43,6 +43,9 @@ END_STATES = (State.ORBIT, State.SCRUB, State.ABORT)
 SCREEN_CYCLE_S = 3.0
 IP_REFRESH_S = 10.0
 FLASH_S = 2.5
+# Pe ecranele finale, ABORT schimbă vocea doar după atâtea secunde: altfel o apăsare
+# repetată pe ABORT în timpul unui abort ar opri vocea din greșeală.
+END_ABORT_GRACE_S = 2.0
 
 
 def clock_text(t: float) -> str:
@@ -80,7 +83,8 @@ class Controller:
         self._flash_text = ""
         self._flash_until = 0.0
         self._voice_playing: str | None = None
-        # Pornită/oprită din ecranul de start cu ABORT; rămâne așa de la o misiune la alta.
+        # Pornită/oprită cu ABORT în ecranul de start sau pe cele finale; rămâne așa de la o
+        # misiune la alta.
         self._voice_on = config.voice_enabled
         self._voice_toggled_at = -math.inf
         self._enter_idle(self._clock())
@@ -151,7 +155,7 @@ class Controller:
     def _handle(self, button: str, now: float) -> None:
         if button == "reset":
             # Ținerea lui ABORT trimite întâi «abort», apoi «reset»: dacă ABORT a schimbat
-            # vocea în ecranul de start, anulăm schimbarea.
+            # vocea, anulăm schimbarea.
             if now - self._voice_toggled_at <= self.cfg.reset_hold_s + 1.0:
                 self._voice_on = not self._voice_on
                 self._voice_toggled_at = -math.inf
@@ -162,10 +166,12 @@ class Controller:
             return
 
         s = self.state
-        if s == State.IDLE and button == "abort":
-            self._toggle_voice(now)
-        elif s == State.IDLE or s in END_STATES:
-            if button == "go":
+        if s == State.IDLE or s in END_STATES:
+            if button == "abort" and (
+                s == State.IDLE or now - self._state_since >= END_ABORT_GRACE_S
+            ):
+                self._toggle_voice(now)
+            elif button == "go":
                 self.audio.stop_all()
                 self._start_checks(now)
         elif s == State.CHECKS:

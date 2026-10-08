@@ -16,6 +16,8 @@
     abort: "ABORT",
   };
   const PRE_LAUNCH = new Set(["idle", "checks", "hold", "ready", "scrub"]);
+  // Aici ABORT apăsat scurt pornește/oprește vocea.
+  const VOICE_TOGGLE = new Set(["idle", "orbit", "scrub", "abort"]);
 
   // Culorile cerului în funcție de altitudine (km): [alt, sus, jos]
   const SKY = [
@@ -101,10 +103,11 @@
 
     $("info-title").textContent = s.info.title;
     $("info-text").textContent = s.info.text;
-    // În ecranul de start: cum se pornește/oprește vocea; în rest, doar dacă e oprită.
+    // Unde ABORT schimbă vocea: cum se pornește/oprește; în rest, doar dacă e oprită.
     const note = $("voice-note");
-    note.hidden = s.state !== "idle" && s.voice_on;
-    note.textContent = s.state !== "idle"
+    const canToggle = VOICE_TOGGLE.has(s.state);
+    note.hidden = !canToggle && s.voice_on;
+    note.textContent = !canToggle
       ? "🔇 Fără voce"
       : s.voice_on
         ? "🔊 Vocea citește explicațiile. Apăsați ABORT ca s-o opriți."
