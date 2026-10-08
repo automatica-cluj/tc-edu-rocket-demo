@@ -44,7 +44,7 @@ class Config:
     # True = elevii trebuie să apese STAGE pentru separarea treptelor.
     interactive_stage: bool = True
     # Câte secunde (reale) așteptăm apăsarea STAGE înainte de separarea automată.
-    stage_window_s: float = 8.0
+    stage_window_s: float = 20.0
     # Cu câte secunde de misiune înainte de separare e acceptată apăsarea STAGE.
     stage_early_s: float = 5.0
     # După câte secunde ecranele finale (orbită / abort / scrub) revin la început.

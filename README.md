@@ -161,7 +161,7 @@ De știut:
 3. **LAUNCH** pornește numărătoarea de la T-10. Motoarele se aprind la T-3, iar la T-0
    racheta decolează.
 4. Zborul este accelerat de 4 ori: 8 minute și jumătate de misiune durează ~2 minute.
-   - După MECO, LCD-ul cere **STAGE**. Dacă nimeni nu apasă în 8 secunde, separarea se
+   - După MECO, LCD-ul cere **STAGE**. Dacă nimeni nu apasă în 20 de secunde, separarea se
      face automat.
    - **ABORT** în timpul numărătorii anulează lansarea (scrub). În zbor, ABORT salvează
      capsula.
