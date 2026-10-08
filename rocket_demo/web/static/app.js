@@ -38,6 +38,7 @@
   let snap = null;
   let prevFired = [];
   let prevState = null;
+  let prevVoiceOn = null;
   const view = { alt: 0, t: 0 };
   let toastTimer = null;
   let build = null;
@@ -100,6 +101,14 @@
 
     $("info-title").textContent = s.info.title;
     $("info-text").textContent = s.info.text;
+    // În ecranul de start: cum se pornește/oprește vocea; în rest, doar dacă e oprită.
+    const note = $("voice-note");
+    note.hidden = s.state !== "idle" && s.voice_on;
+    note.textContent = s.state !== "idle"
+      ? "🔇 Fără voce"
+      : s.voice_on
+        ? "🔊 Vocea citește explicațiile. Apăsați ABORT ca s-o opriți."
+        : "🔇 Vocea e oprită. Apăsați ABORT ca s-o porniți.";
     $("lcd1").textContent = s.lcd[0];
     $("lcd2").textContent = s.lcd[1];
 
@@ -177,8 +186,12 @@
         toast("Toate stațiile: GO!", "success");
       }
     }
+    if (prevVoiceOn !== null && s.voice_on !== prevVoiceOn) {
+      toast(s.voice_on ? "🔊 Vocea e pornită" : "🔇 Vocea e oprită");
+    }
     prevFired = s.fired.slice();
     prevState = s.state;
+    prevVoiceOn = s.voice_on;
   }
 
   // ---------- scena ----------

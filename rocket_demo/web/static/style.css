@@ -179,6 +179,7 @@ html, body {
 .info-kicker { color: var(--accent); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .1em; }
 .info h2 { margin: 4px 0 6px; font-size: clamp(22px, 2.2vw, 30px); }
 .info p { margin: 0; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.45; color: #d5ddf2; }
+.info p.voice-note { margin-top: 10px; font-size: clamp(14px, 1.2vw, 17px); color: var(--muted); }
 
 .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .list li {

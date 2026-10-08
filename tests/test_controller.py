@@ -245,3 +245,40 @@ def test_hold_waits_for_voice_to_finish():
     h.audio.speaking = False
     h.run(0.2)
     assert h.state == "checks"
+
+
+def test_abort_on_start_screen_toggles_voice(h):
+    assert h.ctrl.snapshot()["voice_on"] is True
+    h.press("abort")
+    assert h.state == "idle"
+    assert h.audio.voiced[-1] is None  # vocea care vorbea se oprește
+    assert h.display.last[1].strip() == "Voce: OPRITA"
+    assert h.ctrl.snapshot()["voice_on"] is False
+    h.run(6.0)  # după mesaj, ecranul de start alternează cu adresa IP la 3 s
+    assert h.display.last[1].strip() == "GO >> fara voce"
+
+    h.go_to_flight()
+    h.run(20)
+    assert set(h.audio.voiced) == {"stare_idle", None}  # zborul nu mai are voce
+    h.audio.speaking = True  # și nu mai așteaptă vocea
+    h.run(10)
+    assert len(h.ctrl.snapshot()["fired"]) > 2
+
+    h.press("reset")
+    h.press("abort")
+    assert h.display.last[1].strip() == "Voce: PORNITA"
+    assert h.audio.voiced[-1] == "stare_idle"  # citește din nou ecranul de start
+
+
+def test_holding_abort_to_reset_does_not_toggle_voice(h):
+    h.press("abort")  # ABORT ținut apăsat: întâi «abort»...
+    h.run(3.0)
+    h.press("reset")  # ...apoi «reset»
+    assert h.ctrl.snapshot()["voice_on"] is True
+    assert h.audio.voiced[-1] == "stare_idle"
+
+
+def test_abort_still_scrubs_during_checks(h):
+    h.press("go", "abort")
+    assert h.state == "scrub"
+    assert h.ctrl.snapshot()["voice_on"] is True

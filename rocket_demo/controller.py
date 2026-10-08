@@ -80,6 +80,9 @@ class Controller:
         self._flash_text = ""
         self._flash_until = 0.0
         self._voice_playing: str | None = None
+        # Pornită/oprită din ecranul de start cu ABORT; rămâne așa de la o misiune la alta.
+        self._voice_on = config.voice_enabled
+        self._voice_toggled_at = -math.inf
         self._enter_idle(self._clock())
         self.tick()
 
@@ -147,13 +150,21 @@ class Controller:
 
     def _handle(self, button: str, now: float) -> None:
         if button == "reset":
+            # Ținerea lui ABORT trimite întâi «abort», apoi «reset»: dacă ABORT a schimbat
+            # vocea în ecranul de start, anulăm schimbarea.
+            if now - self._voice_toggled_at <= self.cfg.reset_hold_s + 1.0:
+                self._voice_on = not self._voice_on
+                self._voice_toggled_at = -math.inf
+                self._voice_playing = None
             self.audio.stop_all()
             self._enter_idle(now)
             self._flash("Reset", now)
             return
 
         s = self.state
-        if s == State.IDLE or s in END_STATES:
+        if s == State.IDLE and button == "abort":
+            self._toggle_voice(now)
+        elif s == State.IDLE or s in END_STATES:
             if button == "go":
                 self.audio.stop_all()
                 self._start_checks(now)
@@ -303,8 +314,17 @@ class Controller:
             self._fire(ev, now)
 
     # ------------------------------------------------------- voce
+    def _toggle_voice(self, now: float) -> None:
+        self._voice_on = not self._voice_on
+        self._voice_toggled_at = now
+        self._voice_playing = None  # pornită: citește din nou ecranul de start
+        if not self._voice_on:
+            self.audio.voice(None)
+        log.info("voce: %s", "pornită" if self._voice_on else "oprită")
+        self._flash("Voce: PORNITA" if self._voice_on else "Voce: OPRITA", now)
+
     def _voice_busy(self) -> bool:
-        return self.cfg.voice_wait and self.audio.voice_busy()
+        return self._voice_on and self.cfg.voice_wait and self.audio.voice_busy()
 
     def _voice_key(self) -> str:
         """Fișierul de voce pentru textul afișat acum pe pagina web (vezi `voice_texts`)."""
@@ -317,7 +337,7 @@ class Controller:
         return f"stare_{s.value}"
 
     def _update_voice(self) -> None:
-        key = self._voice_key()
+        key = self._voice_key() if self._voice_on else None
         if key != self._voice_playing:
             self._voice_playing = key
             self.audio.voice(key)
@@ -361,7 +381,10 @@ class Controller:
             ip = self._web_ip(now) if self.cfg.web_enabled else None
             if screen == 1 and ip:
                 return f"Web: port {self.cfg.web_port}", ip
-            return f"{ROCKET} MISIUNE {self.cfg.mission_name}", "Apasa GO >>"
+            return (
+                f"{ROCKET} MISIUNE {self.cfg.mission_name}",
+                "Apasa GO >>" if self._voice_on else "GO >> fara voce",
+            )
         if s == State.CHECKS:
             check = self.mission.checks[self._checks_done]
             n = len(self.mission.checks)
@@ -444,6 +467,7 @@ class Controller:
             "checks": self._check_statuses(),
             "info": self._info(),
             "web_control": self.cfg.web_control,
+            "voice_on": self._voice_on,
         }
         with self._cond:
             previous = {k: v for k, v in self._snapshot.items() if k != "version"}
