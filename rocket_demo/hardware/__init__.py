@@ -42,7 +42,7 @@ def make_audio(cfg: Config, enabled: bool = True):
             SOUNDS,
             cfg.sound_files,
             cfg.sound_volume,
-            voice_dirs=[cfg.voice_dir, cfg.voice_draft_dir],
+            voice_dirs=cfg.voice_dirs(),
             voice_keys=voice_texts() if cfg.voice_enabled else (),
         )
     except Exception as exc:  # noqa: BLE001

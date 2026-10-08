@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
+VOICE_LANGUAGES = ("en", "ro")
 
 
 @dataclass
@@ -54,11 +55,11 @@ class Config:
     sound_files: dict[str, str] = field(default_factory=dict)
     sound_volume: float = 1.0
 
-    # --- Vocea care citește explicațiile (vezi `sounds/voce/README.md`) ---
+    # --- Vocea care citește explicațiile (vezi `sounds/voce/<limbă>/TEXTE.md`) ---
     voice_enabled: bool = True
-    # Fișierele tale din `sounds/voce/` au prioritate față de ciornele din `sounds/voce/ciorna/`.
-    voice_dir: Path = PROJECT_DIR / "sounds" / "voce"
-    voice_draft_dir: Path = PROJECT_DIR / "sounds" / "voce" / "ciorna"
+    # "en" sau "ro". Doar vocea își schimbă limba; textele de pe ecran rămân în română.
+    voice_language: str = "en"
+    voice_root: Path = PROJECT_DIR / "sounds" / "voce"
     # True = zborul și HOLD-ul așteaptă să se termine explicația înainte de etapa următoare.
     voice_wait: bool = True
 
@@ -68,3 +69,8 @@ class Config:
     web_port: int = 8000
     # Permite butoanele virtuale de pe pagină (http://.../?control=1).
     web_control: bool = True
+
+    def voice_dirs(self) -> list[Path]:
+        """Fișierele tale din `sounds/voce/<limbă>/` au prioritate față de ciornele din `ciorna/`."""
+        base = self.voice_root / self.voice_language
+        return [base, base / "ciorna"]

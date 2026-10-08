@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Scrie `sounds/voce/TEXTE.md`: textele de dat unui generator de voce (text-to-speech).
+"""Scrie `sounds/voce/<limbă>/TEXTE.md`: textele de dat unui generator de voce (text-to-speech).
 
-Textele vin din `rocket_demo/mission.py`, adaptate ca să fie citite corect: fără
+Româna vine din `rocket_demo/mission.py`, adaptată ca să fie citită corect: fără
 simboluri (~, «»), cu unitățile scrise în cuvinte și cu termenii englezești scriși
-cu litere mici (altfel unele voci îi citesc literă cu literă: „G-O”).
+cu litere mici (altfel unele voci îi citesc literă cu literă: „G-O”). Engleza vine
+din `rocket_demo/mission_en.py`, deja scrisă pentru citit.
 
-Rulează din nou după ce schimbi textele din `mission.py`:  python3 tools/make_voice_texts.py
+Rulează din nou după ce schimbi textele:  python3 tools/make_voice_texts.py
 """
 
 from __future__ import annotations
@@ -18,9 +19,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from rocket_demo.config import VOICE_LANGUAGES  # noqa: E402
 from rocket_demo.mission import voice_texts  # noqa: E402
+from rocket_demo.mission_en import VOICE_EN  # noqa: E402
 
-OUT = ROOT / "sounds" / "voce" / "TEXTE.md"
+VOICE_ROOT = ROOT / "sounds" / "voce"
+DRAFT_VOICE = {"en": "Samantha", "ro": "Ioana"}
+SOURCE = {"en": "rocket_demo/mission_en.py", "ro": "rocket_demo/mission.py"}
 
 # Înlocuiri, în ordine: cele mai specifice întâi.
 SPOKEN = (
@@ -43,17 +48,18 @@ SPOKEN = (
 CAPS = re.compile(r"\b[A-ZĂÂÎȘȚ]{2,}(?:-[A-ZĂÂÎȘȚ]{2,})?\b")
 
 HEADER = """\
-# Textele pentru voce
+# Textele pentru voce ({lang})
 
-Generat de `python3 tools/make_voice_texts.py` din `rocket_demo/mission.py`. Nu edita
-de mână: schimbă textul în `mission.py` și rulează din nou scriptul.
+Generat de `python3 tools/make_voice_texts.py` din `{source}`. Nu edita de mână:
+schimbă textul acolo și rulează din nou scriptul.
 
 Pentru fiecare text de mai jos generează o voce (text-to-speech) și salveaz-o în acest
-director cu **numele din titlu**, de ex. `sounds/voce/etapa_liftoff.mp3`. Merg
+director cu **numele din titlu**, de ex. `sounds/voce/{lang}/etapa_liftoff.mp3`. Merg
 `.mp3`, `.ogg` sau `.wav`. Fișierele tale au prioritate față de ciornele din
-`sounds/voce/ciorna/` (citite de vocea Ioana din macOS). Dacă lipsește și ciorna,
-explicația e sărită, fără erori.
-
+`sounds/voce/{lang}/ciorna/` (citite de vocea {draft} din macOS). Dacă lipsește și
+ciorna, explicația e sărită, fără erori.
+"""
+HEADER_RO_NOTE = """
 Verifică pronunția termenilor englezești (Go, No-Go, Launch, Stage, Hold, Abort,
 scrub, Max Q, MECO, Falcon, Crew Dragon). Dacă generatorul îi citește greșit, scrie-i
 cum se pronunță doar în textul dat generatorului.
@@ -68,25 +74,30 @@ def spoken(title: str, text: str) -> str:
     return CAPS.sub(lambda m: m.group(0).capitalize(), out)
 
 
-def spoken_texts() -> dict[str, str]:
-    """Cheie (numele fișierului) -> textul de citit."""
+def spoken_texts(lang: str) -> dict[str, str]:
+    """Cheie (numele fișierului) -> textul de citit, în ordinea din `voice_texts()`."""
+    if lang == "en":
+        return {key: VOICE_EN[key] for key in voice_texts()}
     return {key: spoken(title, text) for key, (title, text) in voice_texts().items()}
 
 
-def render() -> str:
-    parts = [HEADER]
-    for key, text in spoken_texts().items():
+def render(lang: str) -> str:
+    header = HEADER.format(lang=lang, source=SOURCE[lang], draft=DRAFT_VOICE[lang])
+    parts = [header + (HEADER_RO_NOTE if lang == "ro" else "")]
+    for key, text in spoken_texts(lang).items():
         parts.append(f"## `{key}`\n\n{text}\n")
     return "\n".join(parts)
 
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--out", type=Path, default=OUT, help=f"fișierul scris (implicit {OUT})")
+    p.add_argument("--root", type=Path, default=VOICE_ROOT, help=f"implicit {VOICE_ROOT}")
     args = p.parse_args(argv)
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(render(), encoding="utf-8")
-    print(f"scris: {args.out}")
+    for lang in VOICE_LANGUAGES:
+        out = args.root / lang / "TEXTE.md"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(render(lang), encoding="utf-8")
+        print(f"scris: {out}")
     return 0
 
 

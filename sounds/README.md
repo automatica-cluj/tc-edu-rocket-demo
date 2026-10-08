@@ -28,8 +28,9 @@ merge mai departe fără sunetul respectiv.
 | `abort_alarm` | ABORT în zbor (sirenă) | 2–5 s |
 | `scrub` | lansare anulată înainte de decolare | 1–3 s |
 
-Vocea care citește explicațiile are directorul ei, `sounds/voce/`; textele și numele
-fișierelor sunt în [voce/TEXTE.md](voce/TEXTE.md).
+Vocea care citește explicațiile are directorul ei, `sounds/voce/<limbă>/`; textele și
+numele fișierelor sunt în [voce/en/TEXTE.md](voce/en/TEXTE.md) și
+[voce/ro/TEXTE.md](voce/ro/TEXTE.md).
 
 ## Sfaturi
 

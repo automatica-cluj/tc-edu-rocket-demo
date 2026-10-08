@@ -13,7 +13,7 @@ import sys
 import threading
 import time
 
-from .config import Config
+from .config import VOICE_LANGUAGES, Config
 from .controller import Controller
 from .glyphs import ROCKET
 from .hardware import make_audio, make_buttons, make_display
@@ -54,6 +54,7 @@ def parse_args(argv):
     )
     p.add_argument("--no-sound", action="store_true", help="fără sunet")
     p.add_argument("--no-voice", action="store_true", help="fără vocea care citește explicațiile")
+    p.add_argument("--voice-lang", choices=VOICE_LANGUAGES, help="limba vocii (implicit en)")
     p.add_argument("--no-web", action="store_true", help="fără pagina web")
     p.add_argument("--no-web-control", action="store_true", help="fără butoane virtuale pe pagina web")
     p.add_argument("--port", type=int, help="portul paginii web (implicit 8000)")
@@ -83,6 +84,8 @@ def build_config(args) -> Config:
         cfg.interactive_stage = False
     if args.no_voice:
         cfg.voice_enabled = False
+    if args.voice_lang:
+        cfg.voice_language = args.voice_lang
     return cfg
 
 
@@ -122,7 +125,7 @@ def selftest(cfg: Config, sim: bool) -> int:
     print(f"Sunete găsite: {len(audio.sounds)}/{len(SOUNDS)}")
     for key in SOUNDS:
         print(f"  {key:16} {audio.paths.get(key, 'LIPSĂ')}")
-    print(f"Explicații citite (sounds/voce/): {len(audio.voices)}/{len(voice_texts())}")
+    print(f"Explicații citite ({cfg.voice_language}): {len(audio.voices)}/{len(voice_texts())}")
     audio.play("all_go")
 
     presses: queue.Queue[str] = queue.Queue()

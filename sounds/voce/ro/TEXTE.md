@@ -1,13 +1,13 @@
-# Textele pentru voce
+# Textele pentru voce (ro)
 
-Generat de `python3 tools/make_voice_texts.py` din `rocket_demo/mission.py`. Nu edita
-de mână: schimbă textul în `mission.py` și rulează din nou scriptul.
+Generat de `python3 tools/make_voice_texts.py` din `rocket_demo/mission.py`. Nu edita de mână:
+schimbă textul acolo și rulează din nou scriptul.
 
 Pentru fiecare text de mai jos generează o voce (text-to-speech) și salveaz-o în acest
-director cu **numele din titlu**, de ex. `sounds/voce/etapa_liftoff.mp3`. Merg
+director cu **numele din titlu**, de ex. `sounds/voce/ro/etapa_liftoff.mp3`. Merg
 `.mp3`, `.ogg` sau `.wav`. Fișierele tale au prioritate față de ciornele din
-`sounds/voce/ciorna/` (citite de vocea Ioana din macOS). Dacă lipsește și ciorna,
-explicația e sărită, fără erori.
+`sounds/voce/ro/ciorna/` (citite de vocea Ioana din macOS). Dacă lipsește și
+ciorna, explicația e sărită, fără erori.
 
 Verifică pronunția termenilor englezești (Go, No-Go, Launch, Stage, Hold, Abort,
 scrub, Max Q, MECO, Falcon, Crew Dragon). Dacă generatorul îi citește greșit, scrie-i
