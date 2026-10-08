@@ -31,6 +31,9 @@ class Config:
     reset_hold_s: float = 3.0
 
     # --- Timpi ---
+    # Pauză la pornire (nu în --sim), ca sistemul să apuce să pornească și boxa Bluetooth
+    # să se conecteze înainte de primul sunet. 0 = fără pauză.
+    start_delay_s: float = 5.0
     # De câte ori e accelerat zborul (4 = zborul de 8,5 minute durează ~2 minute).
     time_scale: float = 4.0
     countdown_s: int = 10

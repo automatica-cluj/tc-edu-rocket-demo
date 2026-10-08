@@ -153,8 +153,9 @@ De știut:
 
 ## 4. Utilizare
 
-1. La pornire, LCD-ul arată „MISIUNE AURORA / Apasa GO”, alternând cu adresa paginii
-   web.
+1. La pornire, LCD-ul arată 5 secunde „Pornire... / Asteptam boxa”, ca boxa Bluetooth
+   să apuce să se conecteze (`start_delay_s` în `config.py`, `0` = fără pauză). Apoi
+   arată „MISIUNE AURORA / Apasa GO”, alternând cu adresa paginii web.
 2. **GO** pornește verificările. Fiecare dintre cele 5 stații cere câte un **GO**. Uneori
    o stație cere **HOLD**; după câteva secunde problema se rezolvă și se cere din nou GO.
 3. **LAUNCH** pornește numărătoarea de la T-10. Motoarele se aprind la T-3, iar la T-0

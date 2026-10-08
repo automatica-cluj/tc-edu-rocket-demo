@@ -15,7 +15,7 @@ import time
 
 from .config import VOICE_LANGUAGES, Config
 from .controller import Controller
-from .glyphs import ROCKET
+from .glyphs import ROCKET, lcd_safe
 from .hardware import make_audio, make_buttons, make_display
 from .hardware.buttons import KeyboardButtons
 from .mission import SOUNDS, voice_texts
@@ -60,6 +60,7 @@ def parse_args(argv):
     p.add_argument("--port", type=int, help="portul paginii web (implicit 8000)")
     p.add_argument("--lcd-address", type=lambda s: int(s, 0), help="adresa I2C a LCD-ului, de ex. 0x27")
     p.add_argument("--time-scale", type=float, help="accelerarea zborului (implicit 4)")
+    p.add_argument("--start-delay", type=float, metavar="SEC", help="pauza la pornire (implicit 5 s; 0 = fără)")
     p.add_argument("--no-hold", action="store_true", help="fără HOLD-uri aleatoare la verificări")
     p.add_argument("--auto-stage", action="store_true", help="separarea treptelor fără butonul STAGE")
     p.add_argument("-v", "--verbose", action="store_true", help="mesaje detaliate")
@@ -78,6 +79,8 @@ def build_config(args) -> Config:
         cfg.lcd_address = args.lcd_address
     if args.time_scale:
         cfg.time_scale = args.time_scale
+    if args.start_delay is not None:
+        cfg.start_delay_s = args.start_delay
     if args.no_hold:
         cfg.hold_probability = 0.0
     if args.auto_stage:
@@ -165,7 +168,15 @@ def main(argv=None) -> int:
         return selftest(cfg, args.sim)
 
     stop = threading.Event()
+    signal.signal(signal.SIGTERM, lambda *_: stop.set())
     display = make_display(cfg, args.sim)
+    if cfg.start_delay_s > 0 and not args.sim:
+        # Sunetul se deschide după pauză, pe ieșirea implicită de atunci (de ex. boxa BT).
+        log.info("aștept %.0f s la pornire (boxa Bluetooth se conectează)", cfg.start_delay_s)
+        display.show(lcd_safe(f"{ROCKET} Pornire..."), lcd_safe("Asteptam boxa"))
+        if stop.wait(cfg.start_delay_s):
+            display.close()
+            return 0
     audio = make_audio(cfg, enabled=not args.no_sound)
     controller = Controller(cfg, display, audio, ip_provider=local_ip)
 
@@ -192,7 +203,6 @@ def main(argv=None) -> int:
     if args.sim or keyboard:
         print(KeyboardButtons.HELP)
 
-    signal.signal(signal.SIGTERM, lambda *_: stop.set())
     try:
         controller.run(stop)
     except KeyboardInterrupt:
