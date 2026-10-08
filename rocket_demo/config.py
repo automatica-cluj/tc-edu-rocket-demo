@@ -56,7 +56,9 @@ class Config:
 
     # --- Vocea care citește explicațiile (vezi `sounds/voce/README.md`) ---
     voice_enabled: bool = True
+    # Fișierele tale din `sounds/voce/` au prioritate față de ciornele din `sounds/voce/ciorna/`.
     voice_dir: Path = PROJECT_DIR / "sounds" / "voce"
+    voice_draft_dir: Path = PROJECT_DIR / "sounds" / "voce" / "ciorna"
     # True = zborul și HOLD-ul așteaptă să se termine explicația înainte de etapa următoare.
     voice_wait: bool = True
 

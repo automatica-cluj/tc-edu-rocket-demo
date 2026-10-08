@@ -50,7 +50,9 @@ de mână: schimbă textul în `mission.py` și rulează din nou scriptul.
 
 Pentru fiecare text de mai jos generează o voce (text-to-speech) și salveaz-o în acest
 director cu **numele din titlu**, de ex. `sounds/voce/etapa_liftoff.mp3`. Merg
-`.mp3`, `.ogg` sau `.wav`. Fișierele care lipsesc sunt sărite, fără erori.
+`.mp3`, `.ogg` sau `.wav`. Fișierele tale au prioritate față de ciornele din
+`sounds/voce/ciorna/` (citite de vocea Ioana din macOS). Dacă lipsește și ciorna,
+explicația e sărită, fără erori.
 
 Verifică pronunția termenilor englezești (Go, No-Go, Launch, Stage, Hold, Abort,
 scrub, Max Q, MECO, Falcon, Crew Dragon). Dacă generatorul îi citește greșit, scrie-i
@@ -66,10 +68,15 @@ def spoken(title: str, text: str) -> str:
     return CAPS.sub(lambda m: m.group(0).capitalize(), out)
 
 
+def spoken_texts() -> dict[str, str]:
+    """Cheie (numele fișierului) -> textul de citit."""
+    return {key: spoken(title, text) for key, (title, text) in voice_texts().items()}
+
+
 def render() -> str:
     parts = [HEADER]
-    for key, (title, text) in voice_texts().items():
-        parts.append(f"## `{key}`\n\n{spoken(title, text)}\n")
+    for key, text in spoken_texts().items():
+        parts.append(f"## `{key}`\n\n{text}\n")
     return "\n".join(parts)
 
 

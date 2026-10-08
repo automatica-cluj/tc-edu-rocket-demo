@@ -232,6 +232,10 @@ generator de voce (text-to-speech) sunt în
 [sounds/voce/TEXTE.md](sounds/voce/TEXTE.md), fiecare cu numele fișierului în care
 trebuie salvată vocea, de exemplu `sounds/voce/etapa_liftoff.mp3`.
 
+Până le generezi pe ale tale, demo-ul folosește ciornele din `sounds/voce/ciorna/`,
+citite de vocea Ioana din macOS (`tools/make_voice_drafts.py`). Fișierele tale din
+`sounds/voce/` au prioritate față de ele.
+
 - Vocea are canalul ei: efectele (motor, sirenă) se aud peste ea, iar o explicație nouă
   o oprește pe cea veche.
 - Zborul și HOLD-ul **așteaptă să se termine explicația** înainte de etapa următoare,
@@ -240,7 +244,8 @@ trebuie salvată vocea, de exemplu `sounds/voce/etapa_liftoff.mp3`.
 - Fără voce: `--no-voice`. Fișierele care lipsesc sunt sărite.
 - Ascultă una: `--play etapa_liftoff`; toate: `--play voce`.
 - După ce schimbi textele din `mission.py`, rulează `python3 tools/make_voice_texts.py`
-  ca să actualizezi `TEXTE.md`, apoi generează din nou vocile textelor schimbate.
+  ca să actualizezi `TEXTE.md`, apoi generează din nou vocile textelor schimbate (și
+  ciornele lor, pe un Mac: `python3 tools/make_voice_drafts.py etapa_les`).
 
 ## 6. Personalizare
 
@@ -322,6 +327,7 @@ rocket_demo/
   web/            server Flask + Server-Sent Events, pagina statică
 tools/make_placeholder_sounds.py
 tools/make_voice_texts.py   scrie sounds/voce/TEXTE.md din mission.py
+tools/make_voice_drafts.py  ciornele de voce din sounds/voce/ciorna/ (macOS + lameenc)
 systemd/rocket-demo.service, install.sh
 tests/            pytest (ceas simulat, fără hardware)
 ```
