@@ -45,6 +45,7 @@ def local_ip() -> str | None:
 def parse_args(argv):
     p = argparse.ArgumentParser(prog="rocket_demo", description="Demo: lansarea unei rachete")
     p.add_argument("--sim", action="store_true", help="fără hardware: LCD în terminal, taste în loc de butoane")
+    p.add_argument("--keyboard", action="store_true", help="pe Pi: tastele din terminal merg pe lângă butoanele reale")
     p.add_argument("--selftest", action="store_true", help="testează LCD-ul, sunetul și butoanele")
     p.add_argument("--play", metavar="SUNET", help="redă un sunet (sau 'all' pentru toate) și iese")
     p.add_argument("--no-sound", action="store_true", help="fără sunet")
@@ -155,6 +156,7 @@ def main(argv=None) -> int:
             controller.press(name)
 
     buttons = make_buttons(cfg, args.sim, on_press)
+    keyboard = KeyboardButtons(on_press) if args.keyboard and not args.sim else None
     web = None
     if cfg.web_enabled:
         try:
@@ -167,7 +169,7 @@ def main(argv=None) -> int:
         except Exception as exc:  # noqa: BLE001
             log.error("pagina web nu a pornit (%s)", exc)
             web = None
-    if args.sim:
+    if args.sim or keyboard:
         print(KeyboardButtons.HELP)
 
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
@@ -177,6 +179,8 @@ def main(argv=None) -> int:
         pass
     finally:
         buttons.close()
+        if keyboard:
+            keyboard.close()
         if web:
             web.stop()
         audio.close()

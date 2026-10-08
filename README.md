@@ -23,11 +23,15 @@ Ghidul pentru oră (roluri, întrebări, explicații): [docs/ghid-profesor.md](d
 
 | Componentă | Observații |
 |---|---|
-| Raspberry Pi 3 Model B+ (sau mai nou) + card microSD ≥ 8 GB | Raspberry Pi OS **Lite** (Bookworm) |
+| Raspberry Pi 3 Model B+, 4 sau 5 + card microSD ≥ 8 GB | Raspberry Pi OS (64-bit): **Lite** (recomandat) sau cu desktop |
+| Alimentator | Pi 3B+: 5V/2,5A · Pi 4: 5V/3A · Pi 5: 5V/5A (27 W, oficial) |
 | LCD 1602 cu adaptor I2C (PCF8574) | 4 fire: GND, VCC, SDA, SCL |
 | 4 butoane | ideal mari, de tip „arcade”; ABORT roșu |
-| Difuzor activ (cu alimentare proprie) | în mufa jack 3,5 mm |
+| Difuzor activ (cu alimentare proprie) | Pi 3/4: în mufa jack 3,5 mm. **Pi 5 nu are jack**: folosește o placă de sunet USB (adaptor USB → jack 3,5 mm) sau un difuzor USB. |
 | Breadboard, T-cobbler, fire | |
+
+**Raspberry Pi 5:** codul e același. Pinii GPIO, I2C-ul și butoanele sunt identice. Diferențele sunt
+doar de hardware: sunetul merge printr-o placă de sunet USB, iar alimentatorul trebuie să fie de 5A.
 
 ## 2. Cablare
 
@@ -67,7 +71,9 @@ butoane ─── GND (39) (40)
 
 ## 3. Instalare pe Raspberry Pi
 
-1. Scrie pe card **Raspberry Pi OS Lite (64-bit)** cu Raspberry Pi Imager. În setări:
+1. Scrie pe card **Raspberry Pi OS Lite (64-bit)** cu Raspberry Pi Imager. Îl găsești la
+   *Choose OS* → *Raspberry Pi OS (other)*. Merge și varianta cu desktop (vezi mai jos).
+   În setări:
    - hostname `racheta`;
    - activează SSH;
    - completează rețeaua Wi-Fi.
@@ -87,15 +93,63 @@ butoane ─── GND (39) (40)
    - generează sunete provizorii;
    - pornește demo-ul automat la fiecare boot.
 3. Alege ieșirea audio: `sudo raspi-config` → *System Options* → *Audio* →
-   **Headphones**.
+   **Headphones** (jack-ul de pe Pi 3/4) sau placa de sunet **USB** (Pi 5).
 4. Repornește Pi-ul: `sudo reboot`.
 5. Verifică hardware-ul:
 
    ```bash
-   sudo systemctl stop rocket-demo
+   systemctl --user stop rocket-demo
    .venv/bin/python -m rocket_demo --selftest   # LCD + sunet + fiecare buton
-   sudo systemctl start rocket-demo
+   systemctl --user start rocket-demo
    ```
+
+### Raspberry Pi OS cu desktop
+
+Demo-ul merge și pe varianta cu desktop. Diferențe:
+
+- **Sunetul** trece prin PipeWire. Ieșirea audio o alegi din iconița de volum de pe bara
+  desktopului (clic dreapta) sau din `raspi-config` → *System Options* → *Audio*.
+- **Pagina pe monitor:** `kiosk/setup-kiosk.sh` înlocuiește desktopul la pornire cu pagina
+  pe tot ecranul. `--remove` readuce desktopul.
+- Varianta cu desktop e mai grea; pe un Pi 3B+ pornește mai încet.
+
+### Boxă Bluetooth (Raspberry Pi OS cu desktop)
+
+1. Pune boxa în modul de împerechere (pairing), apoi pe Pi:
+
+   ```bash
+   bluetoothctl
+   power on
+   scan on        # aștepți să apară boxa, ex. „Device 12:34:56:78:9A:BC JBL Flip 5”
+   scan off
+   pair 12:34:56:78:9A:BC
+   trust 12:34:56:78:9A:BC
+   connect 12:34:56:78:9A:BC
+   exit
+   ```
+
+   Dacă ai monitor la Pi, poți face același lucru din iconița Bluetooth de pe bara desktopului.
+2. Fă boxa ieșirea implicită:
+   - `wpctl status` afișează lista *Sinks*; boxa apare cu un număr (ID) în față;
+   - `wpctl set-default <ID>`.
+3. Testează: `.venv/bin/python -m rocket_demo --play liftoff`.
+
+De știut:
+
+- Sunetul pe Bluetooth vine cu o mică întârziere (~0,2 s) față de LCD.
+- Multe boxe se închid singure după câteva minute de liniște. Dacă se deconectează:
+  `bluetoothctl connect 12:34:56:78:9A:BC`. După reconectare, demo-ul observă singur
+  noua ieșire audio și își redeschide sunetul în ~5 secunde. Nu trebuie repornit.
+- **Dacă nu se aude demo-ul** (dar alte programe se aud):
+  - `journalctl --user-unit rocket-demo -b | grep -i sunet` arată pe ce ieșire s-au
+    încărcat sunetele și eventualele erori;
+  - `wpctl status` arată la *Streams* dacă demo-ul („Demo racheta”) e legat de boxă;
+  - volumul demo-ului e separat de al boxei și sistemul îl ține minte. Vezi-l cu
+    `wpctl get-volume <ID>` (ID-ul din dreptul „Demo racheta”). Dacă e `0.00` sau
+    `[MUTED]`: `wpctl set-mute <ID> 0` și `wpctl set-volume <ID> 1.0`;
+  - ca soluție rapidă: `systemctl --user restart rocket-demo`.
+- Pi-ul trebuie să pornească cu login automat. Desktopul face asta implicit, iar modul kiosk
+  la fel. Altfel Bluetooth-ul audio nu e activ.
 
 ## 4. Utilizare
 
@@ -122,6 +176,13 @@ Deschide în browser, pe un calculator din aceeași rețea:
 - Cu `http://racheta.local:8000/?control=1` apar și butoane virtuale (GO, LAUNCH,
   STAGE, ABORT, RESET). Sunt utile la teste sau dacă un buton fizic nu merge. Le poți
   dezactiva cu `web_control = False` în `config.py`.
+- **Control din tastatură:** cu pagina deschisă, tastele **G**=GO, **L**=LAUNCH,
+  **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele. Merge din browserul de pe
+  laptop și pe monitorul Pi-ului, cu o tastatură USB legată la Pi (și în modul kiosk).
+- **Din terminal, cu LCD-ul și butoanele reale:**
+  1. `systemctl --user stop rocket-demo`;
+  2. `.venv/bin/python -m rocket_demo --keyboard` (aceleași taste, `q` = ieșire);
+  3. `systemctl --user start rocket-demo`.
 - **Dacă rețeaua școlii nu permite** conexiunea între dispozitive, ai două variante.
   - **Pi-ul creează propria rețea Wi-Fi:**
 
@@ -131,6 +192,31 @@ Deschide în browser, pe un calculator din aceeași rețea:
 
     Conectează laptopul la rețeaua „Racheta” și deschide `http://10.42.0.1:8000`.
   - **Cablu Ethernet direct** între Pi și laptop, apoi `http://racheta.local:8000`.
+
+### Pagina pe un monitor legat direct la Pi (fără laptop)
+
+Pe **Raspberry Pi 4 sau 5**, Pi-ul poate afișa singur pagina pe tot ecranul unui monitor
+sau televizor legat prin HDMI. Nu ai nevoie de desktop, tastatură sau mouse. Pi 3B+ e prea
+lent pentru asta; acolo deschide pagina de pe un laptop.
+
+1. Leagă monitorul la portul **HDMI 0**, cel de lângă alimentare. Pe Pi 4/5 ai nevoie de
+   un cablu micro-HDMI → HDMI.
+2. După `./install.sh`, rulează o singură dată:
+
+   ```bash
+   ./kiosk/setup-kiosk.sh
+   sudo reboot
+   ```
+
+   Scriptul instalează Chromium și `cage`, un program mic care afișează o singură
+   aplicație pe tot ecranul. Apoi pornește login-ul automat în consolă, iar la fiecare
+   boot pagina se deschide singură, fără cursor.
+3. Ce poți face după:
+   - **Consolă de login pe Pi:** Ctrl+Alt+F2. Înapoi la pagină: Ctrl+Alt+F1. Merge și
+     prin SSH, ca de obicei.
+   - **Dezactivare:** `./kiosk/setup-kiosk.sh --remove`, apoi `sudo reboot`.
+   - **Sunet prin monitor:** dacă monitorul are difuzoare, poți folosi sunetul pe HDMI în
+     locul plăcii USB. Îl alegi din `raspi-config` → *System Options* → *Audio*.
 
 ## 5. Sunete
 
@@ -151,7 +237,7 @@ unul: `.venv/bin/python -m rocket_demo --play liftoff`.
   pe pagina web, sunetul fiecărei etape. Fișierul conține doar date.
 - **Opțiuni din linia de comandă** (`python -m rocket_demo --help`): `--no-hold`,
   `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--port 8080`,
-  `--lcd-address 0x3F`.
+  `--lcd-address 0x3F`, `--keyboard`.
 
 ## 7. Rulare pe laptop (fără Raspberry Pi)
 
@@ -191,7 +277,7 @@ Opțiuni utile la testare:
 - `--time-scale 20` face zborul să dureze sub 30 de secunde.
 - `--no-hold` scoate HOLD-urile aleatoare.
 
-Modul `--sim` nu testează firele: LCD-ul I2C, butoanele GPIO și ieșirea audio pe jack.
+Modul `--sim` nu testează firele: LCD-ul I2C, butoanele GPIO și ieșirea audio a Pi-ului.
 Pe acestea le verifici pe Pi, cu `--selftest`.
 
 ## 8. Depanare
@@ -200,11 +286,11 @@ Pe acestea le verifici pe Pi, cu `--selftest`.
 |---|---|
 | LCD-ul e aprins, dar nu apare text (sau apar pătrățele) | Rotește potențiometrul albastru de pe spatele LCD-ului (contrastul). |
 | „nu am găsit LCD-ul” | Verifică firele SDA/SCL. `i2cdetect -y 1` trebuie să arate `27` sau `3f`. Dacă e altă adresă: `--lcd-address 0x..`. |
-| Nu se aude nimic | Verifică alimentarea și volumul difuzorului. Rulează `speaker-test -c2 -t wav`; `aplay -l` arată plăcile audio. Alege *Headphones* din `raspi-config`. |
-| Sunetul iese pe HDMI | Creează `~/.asoundrc` cu `defaults.pcm.card Headphones` și `defaults.ctl.card Headphones`, apoi repornește serviciul. |
+| Nu se aude nimic | Verifică alimentarea și volumul difuzorului. Rulează `speaker-test -c2 -t wav`; `aplay -l` arată plăcile audio. Alege ieșirea corectă din `raspi-config`: *Headphones* (Pi 3/4) sau placa USB (Pi 5). |
+| Sunetul iese pe HDMI | Cu desktop: alege ieșirea din iconița de volum. Pe Lite: creează `~/.asoundrc` cu `defaults.pcm.card Headphones` și `defaults.ctl.card Headphones`, apoi repornește serviciul. Pe Pi 5, în loc de `Headphones` pune numele plăcii USB afișat de `aplay -l`. |
 | Un buton nu reacționează | `--selftest` afișează fiecare apăsare. Verifică pinul și legătura la GND. |
 | Pagina web nu se deschide | Pi-ul și calculatorul trebuie să fie în aceeași rețea. Încearcă IP-ul afișat pe LCD sau varianta hotspot. |
-| Ce face aplicația? | `journalctl -u rocket-demo -f` |
+| Ce face aplicația? | `journalctl --user-unit rocket-demo -f` (repornire: `systemctl --user restart rocket-demo`) |
 
 ## 9. Pentru dezvoltatori
 

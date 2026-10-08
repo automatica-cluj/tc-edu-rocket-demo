@@ -85,3 +85,59 @@ def test_keyboard_buttons_map_keys():
         time.sleep(0.01)
     buttons.close()
     assert pressed == ["go", "launch", "stage", "abort", "reset", "quit"]
+
+
+def test_audio_reopens_when_default_output_changes(tmp_path, monkeypatch):
+    pytest.importorskip("pygame")
+    monkeypatch.setenv("SDL_AUDIODRIVER", "dummy")
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+    import make_placeholder_sounds as gen
+
+    from rocket_demo.hardware import audio as audio_mod
+
+    gen.main(["--out", str(tmp_path)])
+    sink = {"name": "alsa_output.hdmi"}
+    monkeypatch.setattr(audio_mod, "default_sink", lambda: sink["name"])
+
+    audio = audio_mod.Audio([tmp_path], ["go_beep", "engine_loop"], watch_s=None)
+    try:
+        audio._sink = "alsa_output.hdmi"
+        audio.engine(True)
+        audio.check_output()  # nicio schimbare
+        assert audio.reopen_count == 0
+
+        sink["name"] = "bluez_output.12_34_56_78_9A_BC.1"  # s-a conectat boxa Bluetooth
+        audio.check_output()
+        assert audio.reopen_count == 1
+        assert audio._sink == sink["name"]
+        assert audio._engine_channel.get_busy()  # motorul continuă după redeschidere
+        audio.play("go_beep")
+
+        sink["name"] = None  # PipeWire nu răspunde: nu schimbăm nimic
+        audio.check_output()
+        assert audio.reopen_count == 1
+    finally:
+        audio.close()
+
+
+def test_audio_retries_when_unavailable_at_boot(tmp_path, monkeypatch):
+    pytest.importorskip("pygame")
+    from rocket_demo.hardware import audio as audio_mod
+
+    monkeypatch.setattr(audio_mod.shutil, "which", lambda name: "/usr/bin/wpctl")
+    monkeypatch.setattr(audio_mod, "default_sink", lambda: None)
+    monkeypatch.setenv("SDL_AUDIODRIVER", "nu_exista")  # la boot sunetul nu e gata
+
+    audio = audio_mod.Audio([tmp_path], ["go_beep"], watch_s=3600)
+    try:
+        assert not audio._ready
+        audio.play("go_beep")  # nu trebuie să dea eroare
+        monkeypatch.setenv("SDL_AUDIODRIVER", "dummy")  # acum sunetul e disponibil
+        audio.check_output()
+        assert audio._ready
+        assert audio.reopen_count == 1
+    finally:
+        audio.close()

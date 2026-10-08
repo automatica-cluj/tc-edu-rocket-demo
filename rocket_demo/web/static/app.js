@@ -29,7 +29,10 @@
   const ROCKET_RISE = 150;
   const PAD_Y = 545;
 
-  const showControls = new URLSearchParams(location.search).has("control");
+  const params = new URLSearchParams(location.search);
+  const showControls = params.has("control");
+  // ?kiosk=1: afișare pe monitorul legat la Pi, fără cursor
+  if (params.has("kiosk")) document.body.classList.add("kiosk");
 
   let mission = null;
   let snap = null;
@@ -37,6 +40,7 @@
   let prevState = null;
   const view = { alt: 0, t: 0 };
   let toastTimer = null;
+  let build = null;
 
   // ---------- inițializare ----------
   function makeStars() {
@@ -252,11 +256,29 @@
       $("conn").title = "Reconectare…";
     };
     es.onmessage = (e) => onSnapshot(JSON.parse(e.data));
+    // După o actualizare (git pull + repornirea serviciului) pagina se reîncarcă singură.
+    es.addEventListener("hello", (e) => {
+      if (build && e.data !== build) location.reload();
+      build = e.data;
+    });
   }
+
+  const press = (button) => fetch("/api/press/" + button, { method: "POST" });
 
   $("controls").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-btn]");
-    if (btn) fetch("/api/press/" + btn.dataset.btn, { method: "POST" });
+    if (btn) press(btn.dataset.btn);
+  });
+
+  // Aceleași taste ca în modul --sim; merg și pe monitorul Pi-ului, cu o tastatură USB.
+  const KEYS = { g: "go", l: "launch", s: "stage", a: "abort", r: "reset" };
+  document.addEventListener("keydown", (e) => {
+    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || !snap || !snap.web_control) return;
+    const button = KEYS[e.key.toLowerCase()];
+    if (button) {
+      e.preventDefault();
+      press(button);
+    }
   });
 
   makeStars();
