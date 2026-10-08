@@ -54,6 +54,12 @@ class Config:
     sound_files: dict[str, str] = field(default_factory=dict)
     sound_volume: float = 1.0
 
+    # --- Vocea care citește explicațiile (vezi `sounds/voce/README.md`) ---
+    voice_enabled: bool = True
+    voice_dir: Path = PROJECT_DIR / "sounds" / "voce"
+    # True = zborul și HOLD-ul așteaptă să se termine explicația înainte de etapa următoare.
+    voice_wait: bool = True
+
     # --- Pagina web ---
     web_enabled: bool = True
     web_host: str = "0.0.0.0"

@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 
 from ..config import Config
-from ..mission import SOUNDS
+from ..mission import SOUNDS, voice_texts
 from .audio import Audio, NoAudio
 from .buttons import GpioButtons, KeyboardButtons, NoButtons
 from .lcd import I2cLcd, LogDisplay, TerminalDisplay
@@ -38,7 +38,12 @@ def make_audio(cfg: Config, enabled: bool = True):
         return NoAudio()
     try:
         return Audio(
-            [cfg.sounds_dir, cfg.placeholder_dir], SOUNDS, cfg.sound_files, cfg.sound_volume
+            [cfg.sounds_dir, cfg.placeholder_dir],
+            SOUNDS,
+            cfg.sound_files,
+            cfg.sound_volume,
+            voice_dirs=[cfg.voice_dir],
+            voice_keys=voice_texts() if cfg.voice_enabled else (),
         )
     except Exception as exc:  # noqa: BLE001
         log.error("sunet indisponibil (%s); continui fără sunet", exc)

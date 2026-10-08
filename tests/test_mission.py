@@ -45,3 +45,17 @@ def test_format_lcd_fits():
         assert len(format_lcd(interpolate(TELEMETRY, t))) <= 16
     assert format_lcd(Telemetry(200, 7800)) == "200km 28080km/h"
     assert format_lcd(Telemetry(12.34, 450)) == "12.3km 1620km/h"
+
+
+def test_voice_texts_file_is_up_to_date():
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(root / "tools"))
+    import make_voice_texts
+
+    current = (root / "sounds" / "voce" / "TEXTE.md").read_text(encoding="utf-8")
+    assert current == make_voice_texts.render(), "rulează: python3 tools/make_voice_texts.py"
+    for text in make_voice_texts.render().split("\n## ")[1:]:
+        assert "~" not in text and "«" not in text, text

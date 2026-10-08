@@ -34,6 +34,8 @@ class FakeDisplay:
 class FakeAudio:
     def __init__(self):
         self.calls = []
+        self.voiced = []  # vocea are canalul ei, separat de `calls`
+        self.speaking = False  # ce răspunde `voice_busy()`
 
     def play(self, key):
         self.calls.append(("play", key))
@@ -43,6 +45,12 @@ class FakeAudio:
 
     def stop_all(self):
         self.calls.append(("stop",))
+
+    def voice(self, key):
+        self.voiced.append(key)
+
+    def voice_busy(self):
+        return self.speaking
 
     @property
     def played(self):

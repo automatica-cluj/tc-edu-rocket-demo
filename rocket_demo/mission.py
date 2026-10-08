@@ -22,6 +22,7 @@ from dataclasses import dataclass
 class Check:
     """O stație din verificarea GO/NO-GO."""
 
+    key: str
     lcd: str
     name: str
     info: str
@@ -60,6 +61,7 @@ class Mission:
 
 CHECKS = (
     Check(
+        key="meteo",
         lcd="METEO",
         name="Meteo",
         info="Meteorologii verifică vântul, norii și fulgerele. Un vânt puternic la "
@@ -69,6 +71,7 @@ CHECKS = (
         "multe lansări sunt amânate din cauza vremii.",
     ),
     Check(
+        key="propulsie",
         lcd="PROPULSIE",
         name="Propulsie",
         info="Echipa de propulsie verifică motoarele și rezervoarele. Racheta are nevoie "
@@ -78,6 +81,7 @@ CHECKS = (
         "înainte să continuăm.",
     ),
     Check(
+        key="ghidare",
         lcd="GHIDARE",
         name="Ghidare",
         info="Se verifică calculatoarele de bord și senzorii care țin racheta pe traseul "
@@ -87,6 +91,7 @@ CHECKS = (
         "verificat din nou.",
     ),
     Check(
+        key="comunicatii",
         lcd="COMUNICATII",
         name="Comunicații",
         info="Antenele de pe sol trebuie să primească semnalul rachetei pe tot drumul, ca "
@@ -95,6 +100,7 @@ CHECKS = (
         hold_info="Semnalul radio este prea slab. Se reglează antenele de la sol.",
     ),
     Check(
+        key="siguranta",
         lcd="SIGURANTA",
         name="Siguranța zonei",
         info="Zona din jurul rampei și traseul peste ocean trebuie să fie libere: nicio "
@@ -285,3 +291,30 @@ SOUNDS = {
 DEFAULT_MISSION = Mission(
     checks=CHECKS, events=EVENTS, telemetry=TELEMETRY, state_info=STATE_INFO
 )
+
+# Stări fără voce: în numărătoare se aude deja sunetul `countdown` (o voce care numără).
+NO_VOICE_STATES = ("countdown",)
+
+
+def voice_texts(mission: Mission = DEFAULT_MISSION) -> dict[str, tuple[str, str]]:
+    """Explicațiile citite de voce: cheie (= numele fișierului din `sounds/voce/`) -> (titlu, text).
+
+    Cheile sunt aceleași pe care le alege `Controller._voice_key()` pentru textul afișat
+    pe pagina web în acel moment.
+    """
+    def state(name: str) -> tuple[str, str]:
+        info = mission.state_info[name]
+        return info.title, info.text
+
+    texts = {"stare_idle": state("idle")}
+    for check in mission.checks:
+        texts[f"statie_{check.key}"] = (f"Verificare: {check.name}", check.info)
+        texts[f"hold_{check.key}"] = (f"HOLD: {check.name}", check.hold_info)
+    texts["stare_ready"] = state("ready")
+    # Ultima etapă (SECO) trece direct pe orbită, unde se afișează textul stării «orbit».
+    for ev in mission.events[:-1]:
+        texts[f"etapa_{ev.key}"] = (ev.title, ev.info)
+    for name in mission.state_info:
+        if f"stare_{name}" not in texts and name not in NO_VOICE_STATES:
+            texts[f"stare_{name}"] = state(name)
+    return texts

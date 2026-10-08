@@ -1,7 +1,7 @@
 # Ghid pentru profesor
 
 Demo-ul durează ~5 minute pe misiune: ~1 minut de verificări, 10 secunde de numărătoare
-și ~2 minute de zbor. Merită rulat de 2–3 ori: o dată cu explicații, apoi cu elevii
+și ~2 minute de zbor (~3 minute dacă ai pus vocea care citește explicațiile). Merită rulat de 2–3 ori: o dată cu explicații, apoi cu elevii
 la butoane. Poți încheia cu o misiune în care declanșezi intenționat un ABORT.
 
 ## Roluri pentru elevi

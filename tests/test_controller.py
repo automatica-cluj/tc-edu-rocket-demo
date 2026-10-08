@@ -183,3 +183,65 @@ def test_unknown_button_rejected(h):
         pass
     else:
         raise AssertionError("trebuia să dea eroare")
+
+
+def test_voice_follows_the_text_on_the_page(h):
+    assert h.audio.voiced == ["stare_idle"]
+    h.press("go")
+    h.press("go")
+    assert h.audio.voiced[-2:] == ["statie_meteo", "statie_propulsie"]
+    h.press(*["go"] * 4)
+    h.press("launch")
+    assert h.audio.voiced[-2:] == ["stare_ready", "stare_countdown"]  # oprește vocea
+    h.run_until(lambda: h.state == "flight")
+    assert h.audio.voiced[-1] == "etapa_liftoff"
+    h.press("abort")
+    assert h.audio.voiced[-1] == "stare_abort"
+
+
+def test_voice_keys_match_mission_texts(h):
+    from rocket_demo.mission import voice_texts
+
+    texts = voice_texts()
+    h.go_to_flight()
+    h.cfg.interactive_stage = False
+    h.run_until(lambda: h.state == "orbit")
+    h.press("go")
+    h.press("abort")
+    for key in set(h.audio.voiced) - {"stare_countdown"}:
+        assert key in texts, key
+    assert {f"etapa_{ev.key}" for ev in EVENTS[:-1]} <= set(h.audio.voiced)
+
+
+def test_flight_waits_for_voice_to_finish(h):
+    h.go_to_flight()
+    h.audio.speaking = True
+    h.run(30)
+    snap = h.ctrl.snapshot()
+    assert snap["fired"] == ["liftoff"]
+    assert snap["clock"] == f"T+0:{EVENTS[1].t:02d}"  # ceasul stă la etapa următoare
+    h.audio.speaking = False
+    h.run(0.2)
+    assert h.ctrl.snapshot()["fired"] == ["liftoff", "pitch"]
+
+
+def test_flight_ignores_voice_when_voice_wait_is_off():
+    h = Harness(voice_wait=False)
+    h.go_to_flight()
+    h.audio.speaking = True
+    h.run(10)
+    assert len(h.ctrl.snapshot()["fired"]) > 1
+
+
+def test_hold_waits_for_voice_to_finish():
+    h = Harness(hold_probability=1.0)
+    h.press("go")
+    while h.state != "hold":
+        h.press("go")
+    assert h.audio.voiced[-1].startswith("hold_")
+    h.audio.speaking = True
+    h.run(h.cfg.hold_s + 5)
+    assert h.state == "hold"
+    h.audio.speaking = False
+    h.run(0.2)
+    assert h.state == "checks"

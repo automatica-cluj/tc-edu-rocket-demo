@@ -18,7 +18,7 @@ from .controller import Controller
 from .glyphs import ROCKET
 from .hardware import make_audio, make_buttons, make_display
 from .hardware.buttons import KeyboardButtons
-from .mission import SOUNDS
+from .mission import SOUNDS, voice_texts
 
 log = logging.getLogger("rocket_demo")
 
@@ -47,8 +47,13 @@ def parse_args(argv):
     p.add_argument("--sim", action="store_true", help="fără hardware: LCD în terminal, taste în loc de butoane")
     p.add_argument("--keyboard", action="store_true", help="pe Pi: tastele din terminal merg pe lângă butoanele reale")
     p.add_argument("--selftest", action="store_true", help="testează LCD-ul, sunetul și butoanele")
-    p.add_argument("--play", metavar="SUNET", help="redă un sunet (sau 'all' pentru toate) și iese")
+    p.add_argument(
+        "--play",
+        metavar="SUNET",
+        help="redă un sunet sau o explicație (sau 'all' / 'voce' pentru toate) și iese",
+    )
     p.add_argument("--no-sound", action="store_true", help="fără sunet")
+    p.add_argument("--no-voice", action="store_true", help="fără vocea care citește explicațiile")
     p.add_argument("--no-web", action="store_true", help="fără pagina web")
     p.add_argument("--no-web-control", action="store_true", help="fără butoane virtuale pe pagina web")
     p.add_argument("--port", type=int, help="portul paginii web (implicit 8000)")
@@ -76,22 +81,33 @@ def build_config(args) -> Config:
         cfg.hold_probability = 0.0
     if args.auto_stage:
         cfg.interactive_stage = False
+    if args.no_voice:
+        cfg.voice_enabled = False
     return cfg
 
 
 def play_sounds(cfg: Config, which: str) -> int:
     audio = make_audio(cfg)
-    keys = list(SOUNDS) if which == "all" else [which]
+    voices = voice_texts()
+    keys = list(SOUNDS) if which == "all" else list(voices) if which == "voce" else [which]
     for key in keys:
-        if key not in SOUNDS:
-            print(f"sunet necunoscut: {key}. Variante: {', '.join(SOUNDS)}")
+        if key not in SOUNDS and key not in voices:
+            print(f"sunet necunoscut: {key}. Sunete: {', '.join(SOUNDS)}")
+            print(f"Explicații: {', '.join(voices)}")
             return 2
-        path = audio.paths.get(key)
-        print(f"{key:16} {path or 'LIPSĂ'}", flush=True)
-        if path:
-            audio.play(key)
-            time.sleep(min(audio.length(key), 6.0) + 0.3)
-            audio.stop_all()
+        if key in SOUNDS:
+            path = audio.paths.get(key)
+            print(f"{key:20} {path or 'LIPSĂ'}", flush=True)
+            if path:
+                audio.play(key)
+                time.sleep(min(audio.length(key), 6.0) + 0.3)
+        else:
+            path = audio.voice_paths.get(key)
+            print(f"{key:20} {path or 'LIPSĂ'}", flush=True)
+            if path:
+                audio.voice(key)
+                time.sleep(audio.length(key) + 0.3)
+        audio.stop_all()
     audio.close()
     return 0
 
@@ -106,6 +122,7 @@ def selftest(cfg: Config, sim: bool) -> int:
     print(f"Sunete găsite: {len(audio.sounds)}/{len(SOUNDS)}")
     for key in SOUNDS:
         print(f"  {key:16} {audio.paths.get(key, 'LIPSĂ')}")
+    print(f"Explicații citite (sounds/voce/): {len(audio.voices)}/{len(voice_texts())}")
     audio.play("all_go")
 
     presses: queue.Queue[str] = queue.Queue()

@@ -141,3 +141,35 @@ def test_audio_retries_when_unavailable_at_boot(tmp_path, monkeypatch):
         assert audio.reopen_count == 1
     finally:
         audio.close()
+
+
+def test_audio_plays_voice_on_its_own_channel(tmp_path, monkeypatch):
+    pytest.importorskip("pygame")
+    monkeypatch.setenv("SDL_AUDIODRIVER", "dummy")
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+    import make_placeholder_sounds as gen
+
+    from rocket_demo.hardware import audio as audio_mod
+
+    gen.main(["--out", str(tmp_path)])
+    voice_dir = tmp_path / "voce"
+    voice_dir.mkdir()
+    (tmp_path / "orbit.wav").rename(voice_dir / "stare_orbit.wav")
+
+    audio = audio_mod.Audio(
+        [tmp_path], ["go_beep"], watch_s=None, voice_dirs=[voice_dir],
+        voice_keys=["stare_orbit", "stare_idle"],
+    )
+    try:
+        assert list(audio.voices) == ["stare_orbit"]
+        assert audio.length("stare_orbit") > 0
+        audio.voice("stare_orbit")
+        audio.play("go_beep")  # efectele nu opresc vocea
+        assert audio.voice_busy()
+        audio.voice("stare_idle")  # fără fișier: doar oprește vocea de dinainte
+        assert not audio.voice_busy()
+    finally:
+        audio.close()

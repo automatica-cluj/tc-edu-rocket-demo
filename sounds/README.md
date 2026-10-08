@@ -28,6 +28,9 @@ merge mai departe fără sunetul respectiv.
 | `abort_alarm` | ABORT în zbor (sirenă) | 2–5 s |
 | `scrub` | lansare anulată înainte de decolare | 1–3 s |
 
+Vocea care citește explicațiile are directorul ei, `sounds/voce/`; textele și numele
+fișierelor sunt în [voce/TEXTE.md](voce/TEXTE.md).
+
 ## Sfaturi
 
 - **Ascultă un sunet pe Pi:** `.venv/bin/python -m rocket_demo --play liftoff`.

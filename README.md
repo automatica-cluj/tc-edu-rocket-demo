@@ -224,6 +224,24 @@ Pune sample-urile în `sounds/` cu numele din [sounds/README.md](sounds/README.m
 exemplu `sounds/liftoff.wav`. Ele înlocuiesc automat sunetele provizorii. Ca să asculți
 unul: `.venv/bin/python -m rocket_demo --play liftoff`.
 
+### Vocea care citește explicațiile
+
+Demo-ul poate citi cu voce tare explicația afișată pe pagina web (fiecare stație,
+fiecare HOLD, fiecare etapă a zborului, orbita, abort-ul). Textele de dat unui
+generator de voce (text-to-speech) sunt în
+[sounds/voce/TEXTE.md](sounds/voce/TEXTE.md), fiecare cu numele fișierului în care
+trebuie salvată vocea, de exemplu `sounds/voce/etapa_liftoff.mp3`.
+
+- Vocea are canalul ei: efectele (motor, sirenă) se aud peste ea, iar o explicație nouă
+  o oprește pe cea veche.
+- Zborul și HOLD-ul **așteaptă să se termine explicația** înainte de etapa următoare,
+  ca elevii să audă tot. Cu toate vocile, zborul durează ~3 minute în loc de ~2.
+  Fără așteptare: `voice_wait = False` în `config.py`.
+- Fără voce: `--no-voice`. Fișierele care lipsesc sunt sărite.
+- Ascultă una: `--play etapa_liftoff`; toate: `--play voce`.
+- După ce schimbi textele din `mission.py`, rulează `python3 tools/make_voice_texts.py`
+  ca să actualizezi `TEXTE.md`, apoi generează din nou vocile textelor schimbate.
+
 ## 6. Personalizare
 
 - **`rocket_demo/config.py`:**
@@ -236,7 +254,7 @@ unul: `.venv/bin/python -m rocket_demo --play liftoff`.
 - **`rocket_demo/mission.py`:** stațiile, etapele, momentele, textele de pe LCD și de
   pe pagina web, sunetul fiecărei etape. Fișierul conține doar date.
 - **Opțiuni din linia de comandă** (`python -m rocket_demo --help`): `--no-hold`,
-  `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--port 8080`,
+  `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--no-voice`, `--port 8080`,
   `--lcd-address 0x3F`, `--keyboard`.
 
 ## 7. Rulare pe laptop (fără Raspberry Pi)
@@ -303,6 +321,7 @@ rocket_demo/
   hardware/       LCD (RPLCD), butoane (gpiozero), sunet (pygame) + variante simulate
   web/            server Flask + Server-Sent Events, pagina statică
 tools/make_placeholder_sounds.py
+tools/make_voice_texts.py   scrie sounds/voce/TEXTE.md din mission.py
 systemd/rocket-demo.service, install.sh
 tests/            pytest (ceas simulat, fără hardware)
 ```

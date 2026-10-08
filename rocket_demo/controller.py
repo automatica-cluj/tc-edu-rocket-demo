@@ -79,6 +79,7 @@ class Controller:
 
         self._flash_text = ""
         self._flash_until = 0.0
+        self._voice_playing: str | None = None
         self._enter_idle(self._clock())
         self.tick()
 
@@ -115,6 +116,7 @@ class Controller:
             log.info("buton: %s (stare: %s)", button, self.state.value)
             self._handle(button, now)
         self._update(now)
+        self._update_voice()
         line1, line2 = self._render(now)
         self.display.show(line1, line2)
         self._publish(now, line1, line2)
@@ -251,7 +253,7 @@ class Controller:
     # ------------------------------------------------------- timp
     def _update(self, now: float) -> None:
         elapsed = now - self._state_since
-        if self.state == State.HOLD and elapsed >= self.cfg.hold_s:
+        if self.state == State.HOLD and elapsed >= self.cfg.hold_s and not self._voice_busy():
             self._set_state(State.CHECKS, now)
             self._flash("Rezolvat! GO?", now)
         elif self.state == State.COUNTDOWN:
@@ -287,6 +289,9 @@ class Controller:
             ev = self._next_event()
             if ev is None or ev.t > self._flight_t:
                 break
+            if self._fired and self._voice_busy():
+                self._flight_t = ev.t  # așteptăm să se termine explicația etapei curente
+                break
             if ev.needs_stage and self.cfg.interactive_stage:
                 if not self._stage_armed:
                     self._flight_t = ev.t
@@ -295,6 +300,26 @@ class Controller:
                     break
                 self._flash("Bravo! Separare", now)
             self._fire(ev, now)
+
+    # ------------------------------------------------------- voce
+    def _voice_busy(self) -> bool:
+        return self.cfg.voice_wait and self.audio.voice_busy()
+
+    def _voice_key(self) -> str:
+        """Fișierul de voce pentru textul afișat acum pe pagina web (vezi `voice_texts`)."""
+        s = self.state
+        if s in (State.CHECKS, State.HOLD):
+            check = self.mission.checks[self._checks_done]
+            return f"{'hold' if s == State.HOLD else 'statie'}_{check.key}"
+        if s == State.FLIGHT and self._fired:
+            return f"etapa_{self._fired[-1].key}"
+        return f"stare_{s.value}"
+
+    def _update_voice(self) -> None:
+        key = self._voice_key()
+        if key != self._voice_playing:
+            self._voice_playing = key
+            self.audio.voice(key)
 
     # ------------------------------------------------------- afișare
     def _telemetry(self) -> Telemetry:
