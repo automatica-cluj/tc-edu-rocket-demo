@@ -9,6 +9,8 @@ Reguli pentru textele de pe LCD (câmpurile `lcd...`):
 
 Valorile de zbor sunt aproximative, inspirate de o rachetă reală cu două trepte
 (de tip Falcon 9) care duce o capsulă cu echipaj pe o orbită joasă (~200 km).
+Capsula are turn de salvare (ca Soiuz sau Orion), deși Crew Dragon, capsula
+lansată de Falcon 9, nu are; textul etapei «les» explică diferența.
 """
 
 from __future__ import annotations
@@ -111,7 +113,7 @@ EVENTS = (
         title="Decolare!",
         info="Motoarele împing mai tare decât cântărește racheta, așa că ea începe să "
         "urce. La start, o rachetă ca Falcon 9 cântărește aproape 550 de tone, cam cât "
-        "90 de elefanți!",
+        "90 de elefanți mari!",
         sound="liftoff",
         engine=True,
     ),
@@ -139,9 +141,9 @@ EVENTS = (
         t=150,
         lcd="MECO",
         title="MECO: treapta 1 se oprește",
-        info="MECO = Main Engine Cut-Off. Combustibilul primei trepte s-a terminat, iar "
-        "motoarele se opresc. În doar două minute și jumătate au ars peste 400 de tone "
-        "de combustibil și oxigen!",
+        info="MECO = Main Engine Cut-Off. Motoarele primei trepte se opresc. În doar "
+        "două minute și jumătate au ars aproape 400 de tone de combustibil și oxigen! "
+        "Au mai rămas doar câteva zeci de tone, păstrate pentru aterizare.",
         sound="meco",
         engine=False,
     ),
@@ -150,7 +152,7 @@ EVENTS = (
         t=153,
         lcd="SEPARARE",
         title="Separarea treptelor",
-        info="Treapta 1, acum goală, se desprinde. Fără greutatea ei, restul rachetei "
+        info="Treapta 1, acum aproape goală, se desprinde. Fără greutatea ei, restul rachetei "
         "accelerează mult mai ușor. De aceea rachetele au mai multe trepte!",
         sound="separation",
         needs_stage=True,
@@ -172,7 +174,9 @@ EVENTS = (
         title="Turnul de salvare se desprinde",
         info="Pe vârful capsulei e un mic turn cu motoare-rachetă. Dacă ceva nu merge "
         "bine, el trage capsula cu astronauții departe de rachetă. Acum suntem destul "
-        "de sus și nu mai e nevoie de el.",
+        "de sus ca, la nevoie, capsula să se desprindă și fără el, așa că îl aruncăm: "
+        "ar fi doar greutate în plus. (Capsula Crew Dragon nu are turn: motoarele ei "
+        "de salvare sunt chiar în pereții capsulei.)",
         sound="les_jettison",
     ),
     FlightEvent(
@@ -236,7 +240,7 @@ STATE_INFO = {
     ),
     "countdown": Info(
         "Numărătoarea inversă",
-        "În ultimele secunde, calculatoarele preiau controlul. La T-3 pornesc motoarele, "
+        "În ultimul minut, calculatoarele preiau controlul. La T-3 pornesc motoarele, "
         "dar racheta e ținută de cleme până se confirmă că împing destul de tare.",
     ),
     "scrub": Info(

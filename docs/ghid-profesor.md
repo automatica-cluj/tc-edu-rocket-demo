@@ -20,9 +20,9 @@ la butoane. Poți încheia cu o misiune în care declanșezi intenționat un ABO
 | HOLD | Lansările se amână des (vânt, o barcă în zonă, un senzor). | E un eșec dacă amânăm? |
 | T-3: aprinderea | Motoarele pornesc înainte de T-0. Racheta e ținută de cleme până se confirmă că motoarele împing destul. | De ce nu dăm drumul rachetei imediat? |
 | Decolarea | Motoarele împing gazele în jos, iar gazele împing racheta în sus (legea a 3-a a lui Newton). | Ce se întâmplă cu un balon umflat pe care îl lași liber? |
-| Înclinarea | Pentru orbită contează viteza „în lateral”. Spre est primim „gratis” viteza de rotație a Pământului (~1.600 km/h la Ecuator). | De ce se lansează rachetele spre est? |
+| Înclinarea | Pentru orbită contează viteza „în lateral”. Spre est primim „gratis” viteza de rotație a Pământului (~1.670 km/h la Ecuator). | De ce se lansează rachetele spre est? |
 | Max-Q | Presiunea aerului pe rachetă e maximă: viteza e mare, iar aerul e încă dens. Motoarele reduc puterea. | De ce presiunea maximă nu e la viteza maximă? |
-| MECO + separare | Treapta goală e „greutate moartă”. Fără ea, racheta accelerează mult mai ușor. | De ce nu construim o singură treaptă, foarte mare? |
+| MECO + separare | Treapta aproape goală e „greutate moartă”. Fără ea, racheta accelerează mult mai ușor. | De ce nu construim o singură treaptă, foarte mare? |
 | Treapta a 2-a | Motorul are o duză mare, făcută pentru vid. | – |
 | Turnul de salvare | Turnul protejează echipajul doar în prima parte a zborului. | Cum ar putea fi salvați astronauții dacă ceva merge prost? |
 | Aterizarea treptei 1 | Unele rachete moderne își refolosesc treptele. | De ce ar fi util să refolosim o rachetă? |
@@ -36,7 +36,7 @@ la butoane. Poți încheia cu o misiune în care declanșezi intenționat un ABO
 - **De ce Max-Q nu e la viteza maximă?** Presiunea depinde și de viteză, și de cât de
   dens e aerul. Sus aerul e foarte rar, deci presiunea scade, chiar dacă viteza crește.
 - **De ce plutesc astronauții?** Nu pentru că „nu e gravitație”: la 200–400 km
-  gravitația e aproape la fel de puternică. Ei și nava cad împreună, în jurul
+  gravitația e aproape la fel de puternică (cam 90% din cea de la sol). Ei și nava cad împreună, în jurul
   Pământului.
 - **De ce spre est?** Pământul se rotește spre est, deci racheta pornește deja cu viteza
   lui de rotație.
