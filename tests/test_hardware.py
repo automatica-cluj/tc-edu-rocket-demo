@@ -173,3 +173,45 @@ def test_audio_plays_voice_on_its_own_channel(tmp_path, monkeypatch):
         assert not audio.voice_busy()
     finally:
         audio.close()
+
+
+def test_audio_lowers_effects_while_voice_speaks(tmp_path, monkeypatch):
+    pytest.importorskip("pygame")
+    monkeypatch.setenv("SDL_AUDIODRIVER", "dummy")
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+    import make_placeholder_sounds as gen
+
+    from rocket_demo.hardware import audio as audio_mod
+
+    gen.main(["--out", str(tmp_path)])
+    voice_dir = tmp_path / "voce"
+    voice_dir.mkdir()
+    (tmp_path / "orbit.wav").rename(voice_dir / "stare_orbit.wav")
+
+    audio = audio_mod.Audio(
+        [tmp_path], ["engine_loop", "go_beep"], watch_s=None, voice_dirs=[voice_dir],
+        voice_keys=["stare_orbit"], duck=0.3,
+    )
+    try:
+        audio.engine(True)
+        audio.update()
+        assert audio._engine_channel.get_volume() == pytest.approx(1.0, abs=0.01)
+
+        audio.voice("stare_orbit")
+        for _ in range(10):
+            audio.update()
+        assert audio._engine_channel.get_volume() == pytest.approx(0.3, abs=0.01)
+        audio.play("go_beep")  # un efect pornit acum începe direct mai încet
+        assert audio._level == pytest.approx(0.3)
+
+        audio.voice(None)  # vocea s-a oprit: efectele revin treptat
+        audio.update()
+        assert 0.3 < audio._engine_channel.get_volume() < 1.0
+        for _ in range(10):
+            audio.update()
+        assert audio._engine_channel.get_volume() == pytest.approx(1.0, abs=0.01)
+    finally:
+        audio.close()

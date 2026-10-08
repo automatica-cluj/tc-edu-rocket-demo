@@ -52,6 +52,9 @@ class FakeAudio:
     def voice_busy(self):
         return self.speaking
 
+    def update(self):
+        pass
+
     @property
     def played(self):
         return [c[1] for c in self.calls if c[0] == "play"]

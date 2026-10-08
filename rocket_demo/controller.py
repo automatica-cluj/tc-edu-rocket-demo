@@ -117,6 +117,7 @@ class Controller:
             self._handle(button, now)
         self._update(now)
         self._update_voice()
+        self.audio.update()
         line1, line2 = self._render(now)
         self.display.show(line1, line2)
         self._publish(now, line1, line2)

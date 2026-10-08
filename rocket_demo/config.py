@@ -62,6 +62,8 @@ class Config:
     voice_root: Path = PROJECT_DIR / "sounds" / "voce"
     # True = zborul și HOLD-ul așteaptă să se termine explicația înainte de etapa următoare.
     voice_wait: bool = True
+    # Volumul motorului și al celorlalte efecte cât vorbește vocea (1 = nu le reduce).
+    voice_duck: float = 0.3
 
     # --- Pagina web ---
     web_enabled: bool = True

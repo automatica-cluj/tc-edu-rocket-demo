@@ -242,8 +242,9 @@ citite de vocile Samantha (engleză) și Ioana (română) din macOS
 (`tools/make_voice_drafts.py`). Fișierele tale din `sounds/voce/<limbă>/` au prioritate
 față de ele.
 
-- Vocea are canalul ei: efectele (motor, sirenă) se aud peste ea, iar o explicație nouă
-  o oprește pe cea veche.
+- Vocea are canalul ei, iar o explicație nouă o oprește pe cea veche. Cât vorbește
+  vocea, motorul și celelalte efecte coboară la 30% din volum și revin treptat după.
+  Reglaj: `voice_duck` în `config.py` (`1.0` = nu le mai reduce).
 - Zborul și HOLD-ul **așteaptă să se termine explicația** înainte de etapa următoare,
   ca elevii să audă tot. Cu toate vocile, zborul durează ~3 minute în loc de ~2.
   Fără așteptare: `voice_wait = False` în `config.py`.

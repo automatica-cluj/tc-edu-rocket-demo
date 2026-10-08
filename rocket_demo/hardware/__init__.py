@@ -44,6 +44,7 @@ def make_audio(cfg: Config, enabled: bool = True):
             cfg.sound_volume,
             voice_dirs=cfg.voice_dirs(),
             voice_keys=voice_texts() if cfg.voice_enabled else (),
+            duck=cfg.voice_duck,
         )
     except Exception as exc:  # noqa: BLE001
         log.error("sunet indisponibil (%s); continui fără sunet", exc)
