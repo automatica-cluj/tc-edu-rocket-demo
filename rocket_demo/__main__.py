@@ -54,7 +54,7 @@ def parse_args(argv):
     )
     p.add_argument("--no-sound", action="store_true", help="fără sunet")
     p.add_argument("--no-voice", action="store_true", help="fără vocea care citește explicațiile")
-    p.add_argument("--voice-lang", choices=VOICE_LANGUAGES, help="limba vocii (implicit en)")
+    p.add_argument("--voice-lang", choices=VOICE_LANGUAGES, help="limba vocii (implicit ro)")
     p.add_argument("--no-web", action="store_true", help="fără pagina web")
     p.add_argument("--no-web-control", action="store_true", help="fără butoane virtuale pe pagina web")
     p.add_argument("--port", type=int, help="portul paginii web (implicit 8000)")

@@ -227,14 +227,15 @@ unul: `.venv/bin/python -m rocket_demo --play liftoff`.
 ### Vocea care citește explicațiile
 
 Demo-ul poate citi cu voce tare explicația afișată pe pagina web (fiecare stație,
-fiecare HOLD, fiecare etapă a zborului, orbita, abort-ul). **Vocea vorbește engleză**,
-iar textele de pe ecran rămân în română. Pentru voce în română: `voice_language = "ro"`
-în `config.py` sau `--voice-lang ro`.
+fiecare HOLD, fiecare etapă a zborului, orbita, abort-ul). Implicit vocea vorbește
+**română** (vocea Ana Maria, de pe ElevenLabs). Există și o variantă în engleză:
+`voice_language = "en"` în `config.py` sau `--voice-lang en`; textele de pe ecran rămân
+în română.
 
 Textele de dat unui generator de voce (text-to-speech) sunt în
 [sounds/voce/en/TEXTE.md](sounds/voce/en/TEXTE.md) și
 [sounds/voce/ro/TEXTE.md](sounds/voce/ro/TEXTE.md), fiecare cu numele fișierului în
-care trebuie salvată vocea, de exemplu `sounds/voce/en/etapa_liftoff.mp3`.
+care trebuie salvată vocea, de exemplu `sounds/voce/ro/etapa_liftoff.mp3`.
 
 Până le generezi pe ale tale, demo-ul folosește ciornele din `sounds/voce/<limbă>/ciorna/`,
 citite de vocile Samantha (engleză) și Ioana (română) din macOS

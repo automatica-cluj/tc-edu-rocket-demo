@@ -58,7 +58,7 @@ class Config:
     # --- Vocea care citește explicațiile (vezi `sounds/voce/<limbă>/TEXTE.md`) ---
     voice_enabled: bool = True
     # "en" sau "ro". Doar vocea își schimbă limba; textele de pe ecran rămân în română.
-    voice_language: str = "en"
+    voice_language: str = "ro"
     voice_root: Path = PROJECT_DIR / "sounds" / "voce"
     # True = zborul și HOLD-ul așteaptă să se termine explicația înainte de etapa următoare.
     voice_wait: bool = True
