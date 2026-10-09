@@ -166,16 +166,20 @@ body {
 .badge.btn-stage header { background: var(--stage); color: var(--ink); }
 .badge.btn-abort header { background: var(--abort); }
 
-.note { font-size: 8pt; color: var(--muted); margin-top: auto; }
+/* nota stă imediat sub etichete, nu lipită de marginea de jos: așa foaia încape și
+   când imprimanta are margini mari sau hârtia e Letter în loc de A4 */
+.note { font-size: 8pt; color: var(--muted); margin: 2mm 0 0; }
 
 @page { size: A4; margin: 0; }
 @media print {
   body { background: #fff; }
   .intro { display: none; }
   .sheets { display: block; padding: 0; }
-  .scroll { overflow: visible; }
-  .sheet { box-shadow: none; height: 297mm; break-after: page; page-break-after: always; }
-  .sheet:last-child { break-after: auto; page-break-after: auto; }
+  /* fiecare foaie e singură în .scroll, deci saltul de pagină se pune pe .scroll
+     (.sheet:last-child s-ar potrivi la toate foile și ar anula salturile) */
+  .scroll { overflow: visible; break-after: page; page-break-after: always; }
+  .scroll:last-child { break-after: auto; page-break-after: auto; }
+  .sheet { box-shadow: none; min-height: 0; break-inside: avoid; page-break-inside: avoid; }
 }
 </style>
 </head>
