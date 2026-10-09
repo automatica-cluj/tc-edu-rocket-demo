@@ -131,6 +131,7 @@ EVENTS = (
         info="Racheta a trecut de turnul de lansare și începe să se încline spre est. "
         "Pentru a ajunge pe orbită contează mai mult viteza «în lateral» decât "
         "înălțimea, iar spre est ne ajută și rotația Pământului.",
+        sound="pitch",
     ),
     FlightEvent(
         key="maxq",
@@ -276,6 +277,7 @@ SOUNDS = {
     "ignition": "la T-3, aprinderea motoarelor",
     "liftoff": "la T-0, decolarea",
     "engine_loop": "zgomot de motor, se repetă cât timp motoarele merg",
+    "pitch": "racheta a trecut de turn și se înclină (de ex. «roll program»)",
     "maxq": "momentul Max-Q",
     "meco": "oprirea motoarelor treptei 1",
     "stage_prompt": "alarmă: «apăsați STAGE!»",

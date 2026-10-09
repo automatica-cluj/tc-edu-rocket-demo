@@ -1,6 +1,8 @@
 # Sunete
 
-Pune sample-urile tale în acest director, cu numele de mai jos. Extensia poate fi
+Pune sample-urile tale în acest director, cu numele de mai jos. Cele care sunt deja
+aici sunt înregistrări reale NASA (apeluri radio și vuietul lansării); sursele sunt în
+[SURSE.md](SURSE.md). Extensia poate fi
 `.wav`, `.ogg` sau `.mp3`; recomandăm **WAV sau OGG**.
 
 Sunetele tale au prioritate. Pentru cele care lipsesc, demo-ul folosește sunete
@@ -17,6 +19,7 @@ merge mai departe fără sunetul respectiv.
 | `ignition` | la **T-3**, aprinderea motoarelor | 2–4 s |
 | `liftoff` | la **T-0**, decolarea („Liftoff!” + vuiet) | 3–8 s |
 | `engine_loop` | zgomot de motor, **repetat în buclă** cât timp motoarele merg | 2–10 s, fără pauze la capete |
+| `pitch` | racheta a trecut de turn și se înclină („roll program”) | 1–5 s |
 | `maxq` | momentul Max-Q (o voce sau un semnal scurt) | 1–3 s |
 | `meco` | oprirea motoarelor treptei 1 | 1–3 s |
 | `stage_prompt` | alarmă „apăsați STAGE!” | 1–2 s |

@@ -95,6 +95,7 @@ SOUNDS = {
     "ignition": lambda: noise(3.0, 0.8, 0.06, envelope=lambda x: x**1.5),
     "liftoff": lambda: noise(4.0, 0.9, 0.08, envelope=lambda x: min(1, x * 10) * (1 - x) ** 0.5),
     "engine_loop": lambda: noise(3.0, 0.5, 0.05),
+    "pitch": lambda: concat(tone(523, 0.12), tone(659, 0.25)),
     "maxq": lambda: concat(tone(660, 0.2), tone(880, 0.35)),
     "meco": lambda: tone(600, 0.8, freq_end=200),
     "stage_prompt": lambda: concat(beeps(1200, 3), silence(0.25), beeps(1200, 3)),
