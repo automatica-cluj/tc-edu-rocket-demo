@@ -80,9 +80,9 @@ body {
 
 /* ---------- butoane ---------- */
 .btn-label {
-  width: 44mm;
-  height: 24mm;
-  padding: 2mm 2.5mm;
+  width: 34mm;
+  height: 18mm;
+  padding: 1.5mm 2mm;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -92,25 +92,26 @@ body {
 }
 .btn-label .name {
   font-family: var(--display);
-  font-size: 19pt;
+  font-size: 14pt;
   line-height: 1;
-  padding: 1.2mm 3mm 0.8mm;
-  border-radius: 1.2mm;
+  padding: 1mm 2.2mm 0.6mm;
+  border-radius: 1mm;
   color: #fff;
-  min-width: 34mm;
+  min-width: 26mm;
 }
-.btn-label .what { font-family: var(--head); font-weight: 700; font-size: 9.5pt; line-height: 1.1; }
-.btn-label .small { font-size: 6.6pt; line-height: 1.2; color: var(--muted); }
+.btn-label .what { font-family: var(--head); font-weight: 700; font-size: 7.6pt; line-height: 1.1; }
+.btn-label .small { font-size: 5.4pt; line-height: 1.2; color: var(--muted); }
 .go .name { background: var(--go); }
 .launch .name { background: var(--launch); }
 .stage .name { background: var(--stage); color: var(--ink); }
 .abort .name {
   background: var(--abort);
   outline: 1.2mm solid transparent;
-  box-shadow: 0 0 0 0.9mm #fff, 0 0 0 2.1mm var(--ink);
-  margin: 2.2mm 0 2.4mm;
+  box-shadow: 0 0 0 0.7mm #fff, 0 0 0 1.6mm var(--ink);
+  margin: 1.7mm 0 1.9mm;
 }
-.abort { height: 30mm; }
+.abort { height: 24mm; }
+.btn-grid { display: grid; grid-template-columns: repeat(4, 34mm); gap: 4mm; align-items: start; }
 
 /* ---------- capacul cutiei ---------- */
 .panel {
@@ -193,16 +194,14 @@ body {
       <div class="sheet-head"><b>Foaia 1 · Butoane și cutia de control</b><span>Misiunea AURORA · Colegiul Transilvania</span></div>
 
       <p class="group-title">Etichete pentru butoane, câte două (una de rezervă)</p>
-      <div class="row">
+      <div class="btn-grid">
         <div class="btn-label cut go"><span class="name">GO</span><span class="what">Confirmă / Start</span></div>
         <div class="btn-label cut launch"><span class="name">LAUNCH</span><span class="what">Lansare</span></div>
         <div class="btn-label cut stage"><span class="name">STAGE</span><span class="what">Separarea treptelor</span></div>
-        <div class="btn-label cut go"><span class="name">GO</span><span class="what">Confirmă / Start</span></div>
-        <div class="btn-label cut launch"><span class="name">LAUNCH</span><span class="what">Lansare</span></div>
-        <div class="btn-label cut stage"><span class="name">STAGE</span><span class="what">Separarea treptelor</span></div>
-      </div>
-      <div class="row">
         <div class="btn-label cut abort"><span class="name">ABORT</span><span class="what">Oprire de urgență</span><span class="small">Ține apăsat 3 s = RESET<br>Scurt, la început sau final = voce pornită / oprită</span></div>
+        <div class="btn-label cut go"><span class="name">GO</span><span class="what">Confirmă / Start</span></div>
+        <div class="btn-label cut launch"><span class="name">LAUNCH</span><span class="what">Lansare</span></div>
+        <div class="btn-label cut stage"><span class="name">STAGE</span><span class="what">Separarea treptelor</span></div>
         <div class="btn-label cut abort"><span class="name">ABORT</span><span class="what">Oprire de urgență</span><span class="small">Ține apăsat 3 s = RESET<br>Scurt, la început sau final = voce pornită / oprită</span></div>
       </div>
 
@@ -230,7 +229,7 @@ body {
         <div class="lcd-label cut"><i aria-hidden="true"></i>Panou de stare</div>
       </div>
 
-      <p class="note">Tipărește la scară 100%. Etichetele de buton au 44 × 24 mm (ABORT 44 × 30 mm); capacul are lățimea foii.</p>
+      <p class="note">Tipărește la scară 100%. Etichetele de buton au 34 × 18 mm (ABORT 34 × 24 mm); capacul are lățimea foii.</p>
     </section>
   </div>
 
