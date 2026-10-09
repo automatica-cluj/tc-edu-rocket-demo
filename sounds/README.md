@@ -30,6 +30,11 @@ merge mai departe fără sunetul respectiv.
 | `orbit` | am ajuns pe orbită (aplauze, fanfară) | 3–10 s |
 | `abort_alarm` | ABORT în zbor (sirenă) | 2–5 s |
 | `scrub` | lansare anulată înainte de decolare | 1–3 s |
+| `quiz_start` | începe o rundă de quiz | 1–2 s |
+| `quiz_correct` | răspuns corect la quiz | < 1 s |
+| `quiz_wrong` | răspuns greșit sau timp expirat | < 1 s |
+| `quiz_tick` | tic-tac în ultimele 5 secunde ale unei întrebări | < 0,2 s |
+| `quiz_end` | finalul quiz-ului, cu scorul | 2–4 s |
 
 Vocea care citește explicațiile are directorul ei, `sounds/voce/<limbă>/`; textele și
 numele fișierelor sunt în [voce/en/TEXTE.md](voce/en/TEXTE.md) și

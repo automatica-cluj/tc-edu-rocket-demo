@@ -27,7 +27,7 @@ def make_buttons(cfg: Config, sim: bool, on_press):
     if sim:
         return KeyboardButtons(on_press)
     try:
-        return GpioButtons(cfg.button_pins, on_press, cfg.reset_hold_s)
+        return GpioButtons(cfg.button_pins, on_press, cfg.reset_hold_s, cfg.go_hold_s)
     except Exception as exc:  # noqa: BLE001
         log.error("butoane GPIO indisponibile (%s); merg doar butoanele de pe web", exc)
         return NoButtons()

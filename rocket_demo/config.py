@@ -68,6 +68,23 @@ class Config:
     # Volumul motorului și al celorlalte efecte cât vorbește vocea (1 = nu le reduce).
     voice_duck: float = 0.3
 
+    # --- Quiz (GO ținut apăsat în ecranul de start sau pe cele finale) ---
+    # Câte secunde ții apăsat GO ca să deschizi quiz-ul. GO apăsat scurt merge ca înainte.
+    go_hold_s: float = 2.0
+    quiz_questions: int = 8
+    quiz_time_s: float = 20.0
+    # Câte secunde rămân pe ecran răspunsul corect și explicația (GO trece mai repede).
+    quiz_feedback_s: float = 8.0
+    # Quiz-ul se închide singur dacă nimeni nu apasă niciun buton atâtea secunde.
+    quiz_idle_timeout_s: float = 60.0
+    # În timpul jocului, ABORT iese doar dacă e apăsat a doua oară în atâtea secunde.
+    quiz_exit_confirm_s: float = 3.0
+    # Unde e fiecare buton pe panou: tl/tr/bl/br = stânga/dreapta, sus/jos. Pagina quiz-ului
+    # așază variantele la fel, ca elevii să apese butonul din colțul răspunsului ales.
+    button_layout: dict[str, str] = field(
+        default_factory=lambda: {"abort": "tl", "stage": "tr", "go": "bl", "launch": "br"}
+    )
+
     # --- Pagina web ---
     web_enabled: bool = True
     web_host: str = "0.0.0.0"

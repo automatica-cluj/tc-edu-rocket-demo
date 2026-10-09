@@ -148,10 +148,37 @@
       <button data-btn="stage" class="btn stage">STAGE</button>
       <button data-btn="abort" class="btn abort">ABORT</button>
       <button data-btn="reset" class="btn reset">RESET</button>
-      <p class="keys-hint">Taste: G=GO · L=LAUNCH · S=STAGE · A=ABORT · R=RESET</p>
+      <button data-btn="quiz" class="btn quiz">QUIZ</button>
+      <p class="keys-hint">Taste: G=GO · L=LAUNCH · S=STAGE · A=ABORT · R=RESET · Z=QUIZ</p>
     </div>
   </aside>
 </main>
+
+<!-- Quiz: răspunsurile sunt așezate ca butoanele de pe panou (vezi Config.button_layout). -->
+<section id="quiz" class="quiz" hidden aria-live="polite">
+  <header class="quiz-head">
+    <div class="quiz-title">Quiz: lansarea rachetei <span id="quiz-count" class="quiz-count"></span></div>
+    <ol id="quiz-progress" class="quiz-progress"></ol>
+    <div class="quiz-score">Scor <b id="quiz-score">0</b></div>
+  </header>
+  <div id="quiz-timer" class="quiz-timer" hidden>
+    <div class="quiz-timer-track"><i id="quiz-timer-bar"></i></div>
+    <span id="quiz-timer-text"></span>
+  </div>
+  <h1 id="quiz-question" class="quiz-question"></h1>
+  <p id="quiz-sub" class="quiz-sub"></p>
+  <div id="quiz-feedback" class="quiz-feedback" hidden>
+    <strong id="quiz-verdict"></strong> <span id="quiz-explanation"></span>
+    <span class="quiz-next">GO = mai departe</span>
+  </div>
+  <div id="quiz-grid" class="quiz-grid">
+    <div class="quiz-cell" data-btn="abort"><span class="quiz-btn">ABORT</span><span class="quiz-text"></span></div>
+    <div class="quiz-cell" data-btn="stage"><span class="quiz-btn">STAGE</span><span class="quiz-text"></span></div>
+    <div class="quiz-cell" data-btn="go"><span class="quiz-btn">GO</span><span class="quiz-text"></span></div>
+    <div class="quiz-cell" data-btn="launch"><span class="quiz-btn">LAUNCH</span><span class="quiz-text"></span></div>
+  </div>
+  <div id="quiz-confirm" class="quiz-confirm" hidden>Ieșiți din quiz?<br><small>Apăsați ABORT încă o dată.</small></div>
+</section>
 <script src="/static/app.js"></script>
 </body>
 </html>

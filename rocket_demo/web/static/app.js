@@ -14,6 +14,7 @@
     orbit: "Pe orbită!",
     scrub: "Lansare anulată",
     abort: "ABORT",
+    quiz: "Quiz",
   };
   const PRE_LAUNCH = new Set(["idle", "checks", "hold", "ready", "scrub"]);
   // Aici ABORT apăsat scurt pornește/oprește vocea.
@@ -57,6 +58,14 @@
       c.setAttribute("r", (0.6 + rnd() * 1.6).toFixed(1));
       c.setAttribute("fill", "#fff");
       g.appendChild(c);
+    }
+  }
+
+  function placeQuizCells() {
+    // Răspunsurile stau în același colț ca butoanele de pe panou.
+    const layout = mission.button_layout || {};
+    for (const cell of document.querySelectorAll(".quiz-cell")) {
+      if (layout[cell.dataset.btn]) cell.style.gridArea = layout[cell.dataset.btn];
     }
   }
 
@@ -138,6 +147,80 @@
     const big = $("big-count");
     big.hidden = s.state !== "countdown";
     if (s.state === "countdown") big.textContent = Math.max(1, Math.ceil(-s.t));
+  }
+
+  // ---------- quiz ----------
+  const VERDICTS = { correct: "Corect! +1", wrong: "Greșit!", timeout: "Timpul a expirat!" };
+
+  function renderQuiz(q) {
+    $("quiz").hidden = !q;
+    document.body.classList.toggle("quiz-on", !!q);
+    if (!q) return;
+    const playing = q.phase === "question" || q.phase === "feedback";
+
+    const progress = $("quiz-progress");
+    if (progress.children.length !== q.total) {
+      progress.innerHTML = "";
+      for (let i = 0; i < q.total; i++) progress.appendChild(document.createElement("li"));
+    }
+    [...progress.children].forEach((li, i) => {
+      const result = q.results[i];
+      const current = q.phase === "question" && i === q.index - 1;
+      li.className = result === true ? "ok" : result === false ? "bad" : current ? "current" : "";
+      li.textContent = result === true ? "✓" : result === false ? "✗" : i + 1;
+    });
+    $("quiz-score").textContent = q.score;
+    $("quiz-count").textContent = playing ? `· întrebarea ${q.index} din ${q.total}` : "";
+
+    const timer = $("quiz-timer");
+    timer.hidden = q.phase !== "question";
+    if (q.phase === "question") {
+      $("quiz-timer-bar").style.width = (100 * q.time_left) / q.time_total + "%";
+      $("quiz-timer-text").textContent = Math.ceil(q.time_left) + " s";
+      timer.classList.toggle("urgent", q.time_left <= 5);
+    }
+
+    if (q.phase === "intro") {
+      $("quiz-question").textContent = "Sunteți gata de lansare?";
+      $("quiz-sub").textContent =
+        `${q.total} întrebări, câte ${q.time_total} secunde fiecare. ` +
+        "Apăsați butonul din colțul răspunsului corect.";
+    } else if (q.phase === "result") {
+      $("quiz-question").textContent = `Scor: ${q.score} din ${q.total}`;
+      $("quiz-sub").textContent = `🏅 Gradul vostru: ${q.grade}`;
+    } else {
+      $("quiz-question").textContent = q.question;
+      $("quiz-sub").textContent = "";
+    }
+
+    const feedback = $("quiz-feedback");
+    feedback.hidden = q.phase !== "feedback";
+    if (q.phase === "feedback") {
+      feedback.dataset.outcome = q.outcome;
+      $("quiz-verdict").textContent = VERDICTS[q.outcome];
+      $("quiz-explanation").textContent = q.explanation;
+    }
+
+    for (const cell of document.querySelectorAll(".quiz-cell")) {
+      const btn = cell.dataset.btn;
+      let text = "";
+      let cls = "";
+      if (btn === "abort") {
+        text = "Ieșire";
+        cls = "exit";
+      } else if (!playing) {
+        text = btn === "go" ? (q.phase === "intro" ? "Începem!" : "Rundă nouă") : "";
+        cls = btn === "go" ? "action" : "dim";
+      } else {
+        text = q.options[btn];
+        if (q.phase === "feedback") {
+          cls = btn === q.correct ? "correct" : btn === q.chosen ? "wrong" : "dim";
+        }
+      }
+      cell.querySelector(".quiz-text").textContent = text;
+      cell.className = "quiz-cell " + cls;
+    }
+    $("quiz-confirm").hidden = !q.confirm_exit;
   }
 
   // ---------- evenimente ----------
@@ -259,6 +342,7 @@
     snap = s;
     handleChanges(s);
     renderPanel(s);
+    renderQuiz(s.quiz);
   }
 
   function connect() {
@@ -285,9 +369,14 @@
     const btn = e.target.closest("[data-btn]");
     if (btn) press(btn.dataset.btn);
   });
+  // Cu ?control=1, cardurile quiz-ului se pot și apăsa (util la teste).
+  $("quiz-grid").addEventListener("click", (e) => {
+    const cell = e.target.closest("[data-btn]");
+    if (cell && showControls && snap && snap.web_control) press(cell.dataset.btn);
+  });
 
   // Aceleași taste ca în modul --sim; merg și pe monitorul Pi-ului, cu o tastatură USB.
-  const KEYS = { g: "go", l: "launch", s: "stage", a: "abort", r: "reset" };
+  const KEYS = { g: "go", l: "launch", s: "stage", a: "abort", r: "reset", z: "quiz" };
   document.addEventListener("keydown", (e) => {
     if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || !snap || !snap.web_control) return;
     const button = KEYS[e.key.toLowerCase()];
@@ -303,6 +392,7 @@
     .then((m) => {
       mission = m;
       buildLists();
+      placeQuizCells();
       if (snap) renderPanel(snap);
     })
     .finally(connect);

@@ -173,6 +173,38 @@ De știut:
    cât timp vocea e oprită; pagina web arată același lucru. Alegerea rămâne valabilă de
    la o misiune la alta, până la repornirea demo-ului.
 
+GO acționează când îl eliberezi: apăsat scurt e GO-ul obișnuit, ținut 2 secunde deschide
+quiz-ul. În timpul misiunii, GO ținut apăsat contează tot ca GO.
+
+### Quiz
+
+**Ține GO apăsat 2 secunde** în ecranul de start sau pe un ecran final (orbită, abort,
+scrub). Pe pagina web apare quiz-ul; quiz-ul are nevoie de pagina web deschisă pe un
+ecran (proiector, monitor sau laptop).
+
+- **8 întrebări**, alese aleatoriu din ~27, cu câte **20 de secunde** fiecare. Toată
+  clasa răspunde împreună.
+- Fiecare întrebare are 3 variante, așezate pe ecran **în același colț ca butoanele de pe
+  panou**. Implicit, panoul arată așa:
+
+  | stânga | dreapta |
+  |---|---|
+  | **ABORT**: ieșire | **STAGE**: răspuns |
+  | **GO**: răspuns | **LAUNCH**: răspuns |
+
+  Dacă butoanele tale sunt așezate altfel, schimbă `button_layout` în `config.py`.
+- După răspuns, sau când expiră timpul, apar răspunsul corect și o scurtă explicație.
+  Se trece singur mai departe după 8 secunde; **GO** trece mai repede.
+- La final apar scorul și gradul: *Cadet*, *Pilot*, *Inginer de zbor* sau *Director de
+  zbor*. **GO** pornește o rundă nouă.
+- **ABORT** iese din quiz. În timpul jocului cere confirmare: apasă ABORT de două ori,
+  în 3 secunde. **ABORT ținut 3 s** resetează demo-ul, ca de obicei.
+- Quiz-ul se închide singur dacă nimeni nu apasă nimic un minut. Vocea tace cât ține
+  quiz-ul.
+- LCD-ul arată numărul întrebării, scorul și secundele rămase.
+- Întrebările sunt în `rocket_demo/quiz_data.py`: le poți schimba sau adăuga (prima
+  variantă e mereu cea corectă; ordinea se amestecă la joc).
+
 ### Pagina web
 
 Deschide în browser, pe un calculator din aceeași rețea:
@@ -180,10 +212,11 @@ Deschide în browser, pe un calculator din aceeași rețea:
 
 - Pagina se actualizează singură. Poate fi deschisă pe mai multe calculatoare deodată.
 - Cu `http://racheta.local:8000/?control=1` apar și butoane virtuale (GO, LAUNCH,
-  STAGE, ABORT, RESET). Sunt utile la teste sau dacă un buton fizic nu merge. Le poți
+  STAGE, ABORT, RESET, QUIZ); în quiz se poate da clic și pe carduri. Sunt utile la teste sau dacă un buton fizic nu merge. Le poți
   dezactiva cu `web_control = False` în `config.py`.
 - **Control din tastatură:** cu pagina deschisă, tastele **G**=GO, **L**=LAUNCH,
-  **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele. Merge din browserul de pe
+  **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele, iar **Z** deschide quiz-ul
+  (ca GO ținut apăsat). Merge din browserul de pe
   laptop și pe monitorul Pi-ului, cu o tastatură USB legată la Pi (și în modul kiosk).
 - **Din terminal, cu LCD-ul și butoanele reale:**
   1. `systemctl --user stop rocket-demo`;
@@ -274,6 +307,9 @@ față de ele.
   - portul paginii web.
 - **`rocket_demo/mission.py`:** stațiile, etapele, momentele, textele de pe LCD și de
   pe pagina web, sunetul fiecărei etape. Fișierul conține doar date.
+- **`rocket_demo/quiz_data.py`:** întrebările quiz-ului. Numărul de întrebări, timpul,
+  durata explicației și așezarea butoanelor pe panou sunt în `config.py` (`quiz_*`,
+  `go_hold_s`, `button_layout`).
 - **Opțiuni din linia de comandă** (`python -m rocket_demo --help`): `--no-hold`,
   `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--no-voice`,
   `--voice-lang ro`, `--port 8080`,
@@ -341,6 +377,8 @@ rocket_demo/
   mission_en.py   explicațiile în engleză, pentru voce
   telemetry.py    interpolarea altitudinii și vitezei
   controller.py   automatul de stări + bucla principală
+  quiz.py         logica quiz-ului (runde, timp, scor)
+  quiz_data.py    întrebările quiz-ului (date)
   hardware/       LCD (RPLCD), butoane (gpiozero), sunet (pygame) + variante simulate
   web/            server Flask + Server-Sent Events, pagina statică
 tools/make_placeholder_sounds.py

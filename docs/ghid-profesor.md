@@ -45,6 +45,19 @@ ecranul de start sau pe ecranul de la finalul misiunii: pe LCD apare „Voce: OP
 - **De ce spre est?** Pământul se rotește spre est, deci racheta pornește deja cu viteza
   lui de rotație.
 
+## Quiz la final
+
+După una sau două misiuni, **țineți GO apăsat 2 secunde** în ecranul de start (sau pe
+ecranul final). Pe proiector apare un quiz de 8 întrebări despre lansare.
+
+- Toată clasa discută și alege împreună; un elev apasă butonul din **colțul** în care e
+  afișat răspunsul ales (GO, LAUNCH sau STAGE). Fiecare întrebare are 20 de secunde.
+- După fiecare răspuns apare explicația: e un moment bun să întrebați „de ce?”.
+- La final, clasa primește un grad: *Cadet*, *Pilot*, *Inginer de zbor* sau *Director
+  de zbor*. GO pornește o rundă nouă, cu alte întrebări.
+- ABORT apăsat de două ori iese din quiz.
+- Întrebările sunt în `rocket_demo/quiz_data.py` și pot fi adaptate clasei.
+
 ## Legătura cu România
 
 - **Conrad Haas** (Sibiu, secolul al XVI-lea) a descris în manuscrisul său rachete cu

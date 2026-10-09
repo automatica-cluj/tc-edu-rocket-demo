@@ -20,11 +20,13 @@ from typing import Callable
 from .config import Config
 from .glyphs import ROCKET, lcd_safe, to_ascii
 from .mission import DEFAULT_MISSION, FlightEvent, Mission
+from .quiz import QuizSession
 from .telemetry import Telemetry, format_lcd, interpolate
 
 log = logging.getLogger(__name__)
 
-BUTTONS = ("go", "launch", "stage", "abort", "reset")
+# «quiz» = GO ținut apăsat (sau tasta Z): deschide quiz-ul din ecranul de start sau de final.
+BUTTONS = ("go", "launch", "stage", "abort", "reset", "quiz")
 
 
 class State(str, Enum):
@@ -37,6 +39,7 @@ class State(str, Enum):
     ORBIT = "orbit"
     SCRUB = "scrub"
     ABORT = "abort"
+    QUIZ = "quiz"
 
 
 END_STATES = (State.ORBIT, State.SCRUB, State.ABORT)
@@ -145,6 +148,7 @@ class Controller:
         self._stage_armed = False
         self._engine_on = False
         self._ignition_done = False
+        self._quiz: QuizSession | None = None
 
     def _start_checks(self, now: float) -> None:
         self._enter_idle(now)
@@ -166,6 +170,17 @@ class Controller:
             return
 
         s = self.state
+        if s == State.QUIZ:
+            self._quiz.press("go" if button == "quiz" else button, now)
+            if self._quiz.exited:
+                self._exit_quiz(now)
+            return
+        if button == "quiz":
+            if s == State.IDLE or s in END_STATES:
+                self._start_quiz(now)
+                return
+            button = "go"  # în timpul misiunii, GO ținut apăsat contează ca GO
+
         if s == State.IDLE or s in END_STATES:
             if button == "abort" and (
                 s == State.IDLE or now - self._state_since >= END_ABORT_GRACE_S
@@ -198,6 +213,17 @@ class Controller:
                 self._abort(now)
             elif button == "stage":
                 self._stage_pressed(now)
+
+    def _start_quiz(self, now: float) -> None:
+        self.audio.stop_all()
+        self._enter_idle(now)
+        self._flash_until = 0.0
+        self._quiz = QuizSession(self.cfg, self.audio.play, now, rng=self._rng)
+        self._set_state(State.QUIZ, now)
+
+    def _exit_quiz(self, now: float) -> None:
+        self.audio.stop_all()
+        self._enter_idle(now)
 
     def _confirm_station(self, now: float) -> None:
         if self._checks_done == self._hold_station:
@@ -288,6 +314,10 @@ class Controller:
                 self._advance_flight(now)
         elif self.state == State.FLIGHT:
             self._advance_flight(now)
+        elif self.state == State.QUIZ:
+            self._quiz.update(now)
+            if self._quiz.exited:
+                self._exit_quiz(now)
         elif self.state in END_STATES and elapsed >= self.cfg.end_screen_timeout_s:
             self.audio.stop_all()
             self._enter_idle(now)
@@ -332,9 +362,11 @@ class Controller:
     def _voice_busy(self) -> bool:
         return self._voice_on and self.cfg.voice_wait and self.audio.voice_busy()
 
-    def _voice_key(self) -> str:
+    def _voice_key(self) -> str | None:
         """Fișierul de voce pentru textul afișat acum pe pagina web (vezi `voice_texts`)."""
         s = self.state
+        if s == State.QUIZ:
+            return None  # quiz-ul nu are voce
         if s in (State.CHECKS, State.HOLD):
             check = self.mission.checks[self._checks_done]
             return f"{'hold' if s == State.HOLD else 'statie'}_{check.key}"
@@ -383,6 +415,8 @@ class Controller:
         screen = int((now - self._state_since) / SCREEN_CYCLE_S) % 2
         blink = int(now * 2) % 2 == 0
 
+        if s == State.QUIZ:
+            return self._quiz.lcd(now)
         if s == State.IDLE:
             ip = self._web_ip(now) if self.cfg.web_enabled else None
             if screen == 1 and ip:
@@ -474,6 +508,7 @@ class Controller:
             "info": self._info(),
             "web_control": self.cfg.web_control,
             "voice_on": self._voice_on,
+            "quiz": self._quiz.view(now) if self._quiz else None,
         }
         with self._cond:
             previous = {k: v for k, v in self._snapshot.items() if k != "version"}

@@ -288,6 +288,11 @@ SOUNDS = {
     "orbit": "am ajuns pe orbită (aplauze/fanfară)",
     "abort_alarm": "ABORT în zbor (sirenă)",
     "scrub": "lansare anulată înainte de decolare",
+    "quiz_start": "începe o rundă de quiz",
+    "quiz_correct": "răspuns corect la quiz",
+    "quiz_wrong": "răspuns greșit la quiz (sau timpul a expirat)",
+    "quiz_tick": "tic-tac în ultimele 5 secunde ale unei întrebări",
+    "quiz_end": "finalul quiz-ului: scorul (aplauze/fanfară scurtă)",
 }
 
 DEFAULT_MISSION = Mission(

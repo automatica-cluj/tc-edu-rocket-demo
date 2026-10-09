@@ -33,6 +33,7 @@ def mission_info(mission: Mission, cfg: Config) -> dict:
         ],
         "max_alt_km": last[1],
         "max_vel_kmh": round(last[2] * 3.6),
+        "button_layout": dict(cfg.button_layout),
     }
 
 

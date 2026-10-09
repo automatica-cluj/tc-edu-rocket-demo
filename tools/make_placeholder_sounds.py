@@ -115,6 +115,14 @@ SOUNDS = {
     ),
     "abort_alarm": lambda: siren(4.0),
     "scrub": lambda: concat(tone(400, 0.3), silence(0.05), tone(300, 0.6)),
+    "quiz_start": lambda: concat(*[tone(f, 0.12) for f in (392, 523, 659)], tone(784, 0.3)),
+    "quiz_correct": lambda: concat(tone(784, 0.12), tone(1047, 0.3)),
+    "quiz_wrong": lambda: tone(330, 0.5, freq_end=220),
+    "quiz_tick": lambda: tone(1500, 0.05, 0.35, attack=0.002, release=0.02),
+    "quiz_end": lambda: concat(
+        *[tone(f, 0.15) for f in (523, 659, 784, 1047)],
+        mix(tone(523, 0.9, 0.25), tone(784, 0.9, 0.25), tone(1047, 0.9, 0.25)),
+    ),
 }
 
 
