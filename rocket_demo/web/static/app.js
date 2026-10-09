@@ -138,7 +138,10 @@
     const last = s.fired[s.fired.length - 1];
     [...$("timeline").children].forEach((li) => {
       const done = s.fired.includes(li.dataset.key);
-      li.className = li.dataset.key === last && s.state === "flight" ? "current" : done ? "done" : "";
+      const current = li.dataset.key === last && s.state === "flight";
+      // cu text mare, lista poate ieși din ecran: etapa curentă rămâne la vedere
+      if (current && !li.classList.contains("current")) li.scrollIntoView({ block: "nearest" });
+      li.className = current ? "current" : done ? "done" : "";
       li.querySelector(".mark").textContent = done ? "✓" : "·";
     });
 

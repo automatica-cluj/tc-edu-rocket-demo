@@ -27,7 +27,7 @@ html, body {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(360px, 1fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(400px, 1fr);
   height: 100vh;
 }
 
@@ -140,7 +140,7 @@ html, body {
 }
 
 .panel-head { display: flex; justify-content: space-between; align-items: center; }
-.mission { font-size: 20px; color: var(--muted); }
+.mission { font-size: 24px; color: var(--muted); }
 .mission strong { color: var(--text); letter-spacing: .06em; }
 .conn { width: 14px; height: 14px; border-radius: 50%; background: var(--go); box-shadow: 0 0 10px var(--go); }
 .conn.off { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
@@ -157,7 +157,7 @@ html, body {
   padding: 8px 14px;
   border-radius: 999px;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 22px;
   background: var(--card);
   border: 1px solid var(--line);
 }
@@ -169,31 +169,31 @@ html, body {
 
 .gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .gauge { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
-.gauge-label { color: var(--muted); font-size: 15px; text-transform: uppercase; letter-spacing: .08em; }
-.gauge-value { font-size: clamp(28px, 3vw, 40px); font-weight: 800; font-variant-numeric: tabular-nums; }
+.gauge-label { color: var(--muted); font-size: 18px; text-transform: uppercase; letter-spacing: .08em; }
+.gauge-value { font-size: clamp(34px, 3.6vw, 54px); font-weight: 800; font-variant-numeric: tabular-nums; }
 .gauge-value small { font-size: .5em; color: var(--muted); font-weight: 600; }
 .bar { height: 8px; border-radius: 4px; background: #0a1022; overflow: hidden; margin-top: 6px; }
 .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--warn)); transition: width .3s linear; }
 
 .info { background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 14px; padding: 14px 18px; }
-.info-kicker { color: var(--accent); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .1em; }
-.info h2 { margin: 4px 0 6px; font-size: clamp(22px, 2.2vw, 30px); }
-.info p { margin: 0; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.45; color: #d5ddf2; }
-.info p.voice-note { margin-top: 10px; font-size: clamp(14px, 1.2vw, 17px); color: var(--muted); }
+.info-kicker { color: var(--accent); font-weight: 700; font-size: 17px; text-transform: uppercase; letter-spacing: .1em; }
+.info h2 { margin: 4px 0 8px; font-size: clamp(27px, 2.7vw, 40px); }
+.info p { margin: 0; font-size: clamp(21px, 2vw, 29px); line-height: 1.45; color: #d5ddf2; }
+.info p.voice-note { margin-top: 10px; font-size: clamp(16px, 1.4vw, 21px); color: var(--muted); }
 
 .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .list li {
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 10px;
   background: #0b1224;
   color: var(--muted);
-  font-size: 17px;
+  font-size: 22px;
 }
-.list li .mark { width: 22px; text-align: center; font-weight: 900; }
-.list li .time { font-variant-numeric: tabular-nums; min-width: 58px; color: var(--muted); }
+.list li .mark { width: 26px; text-align: center; font-weight: 900; }
+.list li .time { font-variant-numeric: tabular-nums; min-width: 74px; color: var(--muted); }
 .list li.done { color: var(--text); }
 .list li.done .mark { color: var(--go); }
 .list li.current { color: var(--text); background: #1b2850; outline: 2px solid var(--accent); }
@@ -233,7 +233,7 @@ html, body {
 .btn.stage { background: var(--warn); }
 .btn.abort { background: var(--danger); color: #fff; }
 .btn.reset { background: #5b6680; color: #fff; }
-.btn.quiz { background: #7c5cff; color: #fff; }
+.btn.btn-quiz { background: #7c5cff; color: #fff; }
 .keys-hint { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 14px; }
 
 /* ---------- quiz ---------- */
@@ -368,7 +368,7 @@ body.quiz-on { overflow: hidden; }
 }
 
 /* ---------- piesele rachetei ---------- */
-.btn.parts { background: #2f9fb5; color: #fff; }
+.btn.btn-parts { background: #2f9fb5; color: #fff; }
 body.parts-on { overflow: hidden; }
 .parts {
   position: fixed;
