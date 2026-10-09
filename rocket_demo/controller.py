@@ -20,13 +20,17 @@ from typing import Callable
 from .config import Config
 from .glyphs import ROCKET, lcd_safe, to_ascii
 from .mission import DEFAULT_MISSION, FlightEvent, Mission
+from .parts import PartsTour
 from .quiz import QuizSession
 from .telemetry import Telemetry, format_lcd, interpolate
 
 log = logging.getLogger(__name__)
 
 # «quiz» = GO ținut apăsat (sau tasta Z): deschide quiz-ul din ecranul de start sau de final.
-BUTTONS = ("go", "launch", "stage", "abort", "reset", "quiz")
+# «parts» = LAUNCH ținut apăsat (sau tasta P): deschide ecranul cu piesele rachetei.
+BUTTONS = ("go", "launch", "stage", "abort", "reset", "quiz", "parts")
+# În afara ecranului de start și a celor finale, o apăsare lungă contează ca una scurtă.
+LONG_AS_SHORT = {"quiz": "go", "parts": "launch"}
 
 
 class State(str, Enum):
@@ -40,6 +44,7 @@ class State(str, Enum):
     SCRUB = "scrub"
     ABORT = "abort"
     QUIZ = "quiz"
+    PARTS = "parts"
 
 
 END_STATES = (State.ORBIT, State.SCRUB, State.ABORT)
@@ -149,6 +154,7 @@ class Controller:
         self._engine_on = False
         self._ignition_done = False
         self._quiz: QuizSession | None = None
+        self._parts: PartsTour | None = None
 
     def _start_checks(self, now: float) -> None:
         self._enter_idle(now)
@@ -171,15 +177,24 @@ class Controller:
 
         s = self.state
         if s == State.QUIZ:
-            self._quiz.press("go" if button == "quiz" else button, now)
+            self._quiz.press(LONG_AS_SHORT.get(button, button), now)
             if self._quiz.exited:
-                self._exit_quiz(now)
+                self._close_screen(now)
             return
-        if button == "quiz":
+        if s == State.PARTS:
+            self._parts.press(LONG_AS_SHORT.get(button, button), now)
+            if self._parts.exited:
+                self._close_screen(now)
+            return
+        if button in LONG_AS_SHORT:
             if s == State.IDLE or s in END_STATES:
-                self._start_quiz(now)
+                if button == "quiz":
+                    self._start_quiz(now)
+                else:
+                    self._start_parts(now)
                 return
-            button = "go"  # în timpul misiunii, GO ținut apăsat contează ca GO
+            # în timpul misiunii, GO / LAUNCH ținute apăsat contează ca GO / LAUNCH
+            button = LONG_AS_SHORT[button]
 
         if s == State.IDLE or s in END_STATES:
             if button == "abort" and (
@@ -221,7 +236,15 @@ class Controller:
         self._quiz = QuizSession(self.cfg, self.audio.play, now, rng=self._rng)
         self._set_state(State.QUIZ, now)
 
-    def _exit_quiz(self, now: float) -> None:
+    def _start_parts(self, now: float) -> None:
+        self.audio.stop_all()
+        self._enter_idle(now)
+        self._flash_until = 0.0
+        self._parts = PartsTour(self.cfg, now)
+        self._set_state(State.PARTS, now)
+
+    def _close_screen(self, now: float) -> None:
+        """Iese din quiz sau din ecranul cu piese, înapoi la ecranul de start."""
         self.audio.stop_all()
         self._enter_idle(now)
 
@@ -317,7 +340,11 @@ class Controller:
         elif self.state == State.QUIZ:
             self._quiz.update(now)
             if self._quiz.exited:
-                self._exit_quiz(now)
+                self._close_screen(now)
+        elif self.state == State.PARTS:
+            self._parts.update(now)
+            if self._parts.exited:
+                self._close_screen(now)
         elif self.state in END_STATES and elapsed >= self.cfg.end_screen_timeout_s:
             self.audio.stop_all()
             self._enter_idle(now)
@@ -365,8 +392,8 @@ class Controller:
     def _voice_key(self) -> str | None:
         """Fișierul de voce pentru textul afișat acum pe pagina web (vezi `voice_texts`)."""
         s = self.state
-        if s == State.QUIZ:
-            return None  # quiz-ul nu are voce
+        if s in (State.QUIZ, State.PARTS):
+            return None  # quiz-ul și ecranul cu piese nu au voce
         if s in (State.CHECKS, State.HOLD):
             check = self.mission.checks[self._checks_done]
             return f"{'hold' if s == State.HOLD else 'statie'}_{check.key}"
@@ -417,6 +444,8 @@ class Controller:
 
         if s == State.QUIZ:
             return self._quiz.lcd(now)
+        if s == State.PARTS:
+            return self._parts.lcd(now)
         if s == State.IDLE:
             ip = self._web_ip(now) if self.cfg.web_enabled else None
             if screen == 1 and ip:
@@ -509,6 +538,7 @@ class Controller:
             "web_control": self.cfg.web_control,
             "voice_on": self._voice_on,
             "quiz": self._quiz.view(now) if self._quiz else None,
+            "parts": self._parts.view(now) if self._parts else None,
         }
         with self._cond:
             previous = {k: v for k, v in self._snapshot.items() if k != "version"}

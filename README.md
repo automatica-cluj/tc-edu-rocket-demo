@@ -173,8 +173,9 @@ De știut:
    cât timp vocea e oprită; pagina web arată același lucru. Alegerea rămâne valabilă de
    la o misiune la alta, până la repornirea demo-ului.
 
-GO acționează când îl eliberezi: apăsat scurt e GO-ul obișnuit, ținut 2 secunde deschide
-quiz-ul. În timpul misiunii, GO ținut apăsat contează tot ca GO.
+GO și LAUNCH acționează când le eliberezi: apăsate scurt merg ca de obicei, ținute 2
+secunde deschid quiz-ul (GO) sau ecranul cu piesele rachetei (LAUNCH). În timpul misiunii,
+GO și LAUNCH ținute apăsat contează tot ca GO și LAUNCH.
 
 ### Quiz
 
@@ -205,6 +206,19 @@ ecran (proiector, monitor sau laptop).
 - Întrebările sunt în `rocket_demo/quiz_data.py`: le poți schimba sau adăuga (prima
   variantă e mereu cea corectă; ordinea se amestecă la joc).
 
+### Piesele rachetei
+
+**Ține LAUNCH apăsat 2 secunde** în ecranul de start sau pe un ecran final. Pe pagina web
+apare racheta desfăcută pe bucăți, culcată, cu numele celor 11 piese: de la turnul de
+salvare și capsulă până la motoarele principale și picioarele de aterizare.
+
+- Piesa curentă e evidențiată, iar dedesubt apare ce face.
+- **GO**: piesa următoare. **STAGE**: înapoi. **ABORT**: ieșire.
+- Dacă nimeni nu apasă, trece singur la piesa următoare la fiecare 8 secunde
+  (`parts_step_s`) și se închide după 2 minute fără apăsări (`parts_idle_timeout_s`).
+- LCD-ul arată numărul și numele piesei. Vocea tace cât timp e deschis ecranul.
+- Piesele și explicațiile sunt în `rocket_demo/parts_data.py`.
+
 ### Pagina web
 
 Deschide în browser, pe un calculator din aceeași rețea:
@@ -212,11 +226,11 @@ Deschide în browser, pe un calculator din aceeași rețea:
 
 - Pagina se actualizează singură. Poate fi deschisă pe mai multe calculatoare deodată.
 - Cu `http://racheta.local:8000/?control=1` apar și butoane virtuale (GO, LAUNCH,
-  STAGE, ABORT, RESET, QUIZ); în quiz se poate da clic și pe carduri. Sunt utile la teste sau dacă un buton fizic nu merge. Le poți
+  STAGE, ABORT, RESET, QUIZ, PIESE); în quiz se poate da clic și pe carduri. Sunt utile la teste sau dacă un buton fizic nu merge. Le poți
   dezactiva cu `web_control = False` în `config.py`.
 - **Control din tastatură:** cu pagina deschisă, tastele **G**=GO, **L**=LAUNCH,
-  **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele, iar **Z** deschide quiz-ul
-  (ca GO ținut apăsat). Merge din browserul de pe
+  **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele, **Z** deschide quiz-ul
+  (ca GO ținut apăsat), iar **P** ecranul cu piesele rachetei (ca LAUNCH ținut apăsat). Merge din browserul de pe
   laptop și pe monitorul Pi-ului, cu o tastatură USB legată la Pi (și în modul kiosk).
 - **Din terminal, cu LCD-ul și butoanele reale:**
   1. `systemctl --user stop rocket-demo`;
@@ -310,6 +324,8 @@ față de ele.
 - **`rocket_demo/quiz_data.py`:** întrebările quiz-ului. Numărul de întrebări, timpul,
   durata explicației și așezarea butoanelor pe panou sunt în `config.py` (`quiz_*`,
   `go_hold_s`, `button_layout`).
+- **`rocket_demo/parts_data.py`:** piesele rachetei de pe ecranul deschis cu LAUNCH ținut
+  apăsat. Desenul fiecărei piese e în `web/static/index.html` (`data-part`).
 - **Opțiuni din linia de comandă** (`python -m rocket_demo --help`): `--no-hold`,
   `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--no-voice`,
   `--voice-lang ro`, `--port 8080`,
@@ -379,6 +395,8 @@ rocket_demo/
   controller.py   automatul de stări + bucla principală
   quiz.py         logica quiz-ului (runde, timp, scor)
   quiz_data.py    întrebările quiz-ului (date)
+  parts.py        ecranul cu piesele rachetei (navigare, trecere automată)
+  parts_data.py   piesele rachetei și explicațiile lor (date)
   hardware/       LCD (RPLCD), butoane (gpiozero), sunet (pygame) + variante simulate
   web/            server Flask + Server-Sent Events, pagina statică
 tools/make_placeholder_sounds.py

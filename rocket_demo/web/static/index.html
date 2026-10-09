@@ -149,7 +149,8 @@
       <button data-btn="abort" class="btn abort">ABORT</button>
       <button data-btn="reset" class="btn reset">RESET</button>
       <button data-btn="quiz" class="btn quiz">QUIZ</button>
-      <p class="keys-hint">Taste: G=GO · L=LAUNCH · S=STAGE · A=ABORT · R=RESET · Z=QUIZ</p>
+      <button data-btn="parts" class="btn parts">PIESE</button>
+      <p class="keys-hint">Taste: G=GO · L=LAUNCH · S=STAGE · A=ABORT · R=RESET · Z=QUIZ · P=PIESE</p>
     </div>
   </aside>
 </main>
@@ -178,6 +179,80 @@
     <div class="quiz-cell" data-btn="launch"><span class="quiz-btn">LAUNCH</span><span class="quiz-text"></span></div>
   </div>
   <div id="quiz-confirm" class="quiz-confirm" hidden>Ieșiți din quiz?<br><small>Apăsați ABORT încă o dată.</small></div>
+</section>
+
+<!-- Piesele rachetei: racheta desfăcută, culcată (vârful în dreapta). Fiecare data-part
+     corespunde unei piese din rocket_demo/parts_data.py; etichetele le pune app.js. -->
+<section id="parts" class="parts" hidden aria-live="polite">
+  <header class="parts-head">
+    <div class="parts-title">Piesele rachetei <span class="parts-sub">racheta desfăcută pe bucăți</span></div>
+    <div id="parts-count" class="parts-count"></div>
+  </header>
+  <svg id="parts-svg" class="parts-svg" viewBox="0 112 1600 336" role="img" aria-label="Racheta desfăcută pe piese">
+    <defs>
+      <pattern id="grid-fin" width="8" height="8" patternUnits="userSpaceOnUse">
+        <rect width="8" height="8" fill="#c7cede"/>
+        <path d="M0 0 H8 M0 0 V8" stroke="#56607a" stroke-width="2"/>
+      </pattern>
+    </defs>
+    <line class="parts-axis" x1="20" y1="280" x2="1590" y2="280"/>
+    <g id="parts-labels"></g>
+
+    <g class="part" data-part="legs">
+      <path d="M118 252 L48 196" class="strut"/><path d="M118 308 L48 364" class="strut"/>
+      <rect x="30" y="186" width="30" height="10" rx="3" class="dark"/>
+      <rect x="30" y="364" width="30" height="10" rx="3" class="dark"/>
+    </g>
+    <g class="part" data-part="engines">
+      <path d="M218 246 L218 262 L150 272 L150 236 Z" class="metal"/>
+      <path d="M218 272 L218 288 L150 298 L150 262 Z" class="metal"/>
+      <path d="M218 298 L218 314 L150 324 L150 288 Z" class="metal"/>
+      <rect x="214" y="240" width="12" height="80" class="dark"/>
+    </g>
+    <g class="part" data-part="fuel_tank">
+      <rect x="244" y="242" width="276" height="76" rx="6" class="body"/>
+      <text x="382" y="286" class="part-mark">RP-1</text>
+    </g>
+    <g class="part" data-part="lox_tank">
+      <rect x="540" y="242" width="236" height="76" rx="6" class="body lox"/>
+      <text x="658" y="286" class="part-mark">LOX</text>
+    </g>
+    <g class="part" data-part="grid_fins">
+      <rect x="796" y="242" width="56" height="76" class="body"/>
+      <rect x="806" y="198" width="36" height="40" fill="url(#grid-fin)" class="fin"/>
+      <rect x="806" y="322" width="36" height="40" fill="url(#grid-fin)" class="fin"/>
+    </g>
+    <g class="part" data-part="interstage">
+      <rect x="872" y="242" width="78" height="76" class="dark"/>
+    </g>
+    <g class="part" data-part="stage2_engine">
+      <path d="M1064 268 L1064 292 L974 324 L974 236 Z" class="metal"/>
+      <rect x="1060" y="262" width="10" height="36" class="dark"/>
+    </g>
+    <g class="part" data-part="stage2_tanks">
+      <rect x="1086" y="242" width="206" height="76" rx="6" class="body"/>
+      <line x1="1188" y1="242" x2="1188" y2="318" class="seam"/>
+      <text x="1137" y="285" class="part-mark small">RP-1</text>
+      <text x="1240" y="285" class="part-mark small">LOX</text>
+    </g>
+    <g class="part" data-part="heat_shield">
+      <path d="M1316 236 Q1302 280 1316 324 L1328 324 L1328 236 Z" class="shield"/>
+    </g>
+    <g class="part" data-part="capsule">
+      <path d="M1346 236 L1442 262 L1442 298 L1346 324 Z" class="capsule"/>
+      <rect x="1384" y="266" width="16" height="12" rx="2" class="window"/>
+    </g>
+    <g class="part" data-part="les">
+      <path d="M1462 266 L1510 274 M1462 294 L1510 286 M1462 266 L1486 290 M1486 270 L1510 286" class="truss"/>
+      <rect x="1510" y="268" width="40" height="24" rx="3" class="red"/>
+      <path d="M1550 268 L1588 280 L1550 292 Z" class="red"/>
+    </g>
+  </svg>
+  <div class="parts-card">
+    <h1 id="parts-name" class="parts-name"></h1>
+    <p id="parts-text" class="parts-text"></p>
+  </div>
+  <p class="parts-hint"><b>GO</b> piesa următoare · <b>STAGE</b> înapoi · <b>ABORT</b> ieșire</p>
 </section>
 <script src="/static/app.js"></script>
 </body>

@@ -45,6 +45,13 @@ ecranul de start sau pe ecranul de la finalul misiunii: pe LCD apare „Voce: OP
 - **De ce spre est?** Pământul se rotește spre est, deci racheta pornește deja cu viteza
   lui de rotație.
 
+## Piesele rachetei
+
+Înainte de prima misiune, **țineți LAUNCH apăsat 2 secunde**. Pe proiector apare racheta
+desfăcută pe bucăți, cu numele fiecărei piese și ce face. GO trece la piesa următoare,
+STAGE înapoi, ABORT iese. E un mod bun de a le arăta elevilor ce urmează să lanseze: de
+ce are racheta două trepte, unde e oxigenul lichid, ce face turnul de salvare.
+
 ## Quiz la final
 
 După una sau două misiuni, **țineți GO apăsat 2 secunde** în ecranul de start (sau pe

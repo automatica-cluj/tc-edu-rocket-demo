@@ -366,3 +366,66 @@ body.quiz-on { overflow: hidden; }
   .scene-wrap { height: 62vh; }
   .panel { border-left: 0; border-top: 1px solid var(--line); }
 }
+
+/* ---------- piesele rachetei ---------- */
+.btn.parts { background: #2f9fb5; color: #fff; }
+body.parts-on { overflow: hidden; }
+.parts {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 32px 26px;
+  background: radial-gradient(circle at 50% -20%, #1d2c5c, var(--bg) 62%);
+  overflow: auto;
+}
+.parts-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.parts-title { font-size: clamp(20px, 1.8vw, 30px); font-weight: 800; letter-spacing: .03em; }
+.parts-sub { margin-left: 10px; color: var(--muted); font-weight: 600; font-size: .7em; }
+.parts-count { font-size: clamp(16px, 1.4vw, 22px); font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.parts-svg { width: 100%; flex: 1 1 auto; min-height: 220px; max-height: 58vh; }
+.parts-axis { stroke: var(--line); stroke-width: 2; stroke-dasharray: 6 10; }
+
+.part > * { transition: opacity .3s, stroke .3s, filter .3s; }
+.part .body { fill: #f3f5f9; stroke: #b8c0cf; stroke-width: 2; }
+.part .body.lox { fill: #e3edfb; }
+.part .dark { fill: #2b3140; stroke: #11151f; stroke-width: 2; }
+.part .metal { fill: #8d95a6; stroke: #4c5466; stroke-width: 2; }
+.part .strut { stroke: #2b3140; stroke-width: 8; stroke-linecap: round; fill: none; }
+.part .fin { stroke: #56607a; stroke-width: 2; }
+.part .seam { stroke: #b8c0cf; stroke-width: 2; stroke-dasharray: 4 4; }
+.part .shield { fill: #5a463a; stroke: #2e231c; stroke-width: 2; }
+.part .capsule { fill: #dfe5ef; stroke: #a9b2c3; stroke-width: 2; }
+.part .window { fill: #2f6fc0; }
+.part .truss { stroke: #9aa1ad; stroke-width: 4; fill: none; }
+.part .red { fill: #c9483b; stroke: #8c2a22; stroke-width: 2; }
+.part-mark { font-size: 20px; font-weight: 800; fill: #8a93a6; text-anchor: middle; letter-spacing: .08em; }
+.part-mark.small { font-size: 15px; }
+
+/* piesa curentă: celelalte se estompează, ea primește un contur portocaliu */
+.parts-svg.has-active .part:not(.active) > * { opacity: .55; }
+.part.active > * { filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 2px var(--accent)); }
+
+.part-label line { stroke: var(--muted); stroke-width: 2; stroke-dasharray: 3 5; }
+.part-label circle { fill: var(--card); stroke: var(--muted); stroke-width: 2; }
+.part-label .num { font-size: 15px; font-weight: 800; fill: var(--text); text-anchor: middle; dominant-baseline: central; }
+.part-label .name { font-size: 19px; font-weight: 700; fill: var(--muted); dominant-baseline: central; }
+.part-label.active line { stroke: var(--accent); stroke-dasharray: none; }
+.part-label.active circle { fill: var(--accent); stroke: var(--accent); }
+.part-label.active .num { fill: #1b1206; }
+.part-label.active .name { fill: var(--text); font-size: 21px; }
+
+.parts-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--accent);
+  border-radius: 14px;
+  padding: 16px 22px;
+  max-width: 1100px;
+}
+.parts-name { margin: 0 0 6px; font-size: clamp(24px, 2.4vw, 38px); text-wrap: balance; }
+.parts-text { margin: 0; font-size: clamp(18px, 1.7vw, 26px); line-height: 1.45; color: #d5ddf2; max-width: 70ch; }
+.parts-hint { margin: 0; color: var(--muted); font-size: clamp(14px, 1.2vw, 18px); }
+.parts-hint b { color: var(--text); }

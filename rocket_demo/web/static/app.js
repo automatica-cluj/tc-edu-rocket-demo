@@ -15,6 +15,7 @@
     scrub: "Lansare anulată",
     abort: "ABORT",
     quiz: "Quiz",
+    parts: "Piesele rachetei",
   };
   const PRE_LAUNCH = new Set(["idle", "checks", "hold", "ready", "scrub"]);
   // Aici ABORT apăsat scurt pornește/oprește vocea.
@@ -337,12 +338,79 @@
     requestAnimationFrame(frame);
   }
 
+  // ---------- piesele rachetei ----------
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const LABEL_UP = 150;
+  const LABEL_DOWN = 420;
+
+  // Pune numărul și numele fiecărei piese deasupra sau dedesubt (alternativ, de la stânga
+  // la dreapta), cu o linie până la piesă. Numerotarea merge de la vârf (1) spre bază.
+  function buildPartLabels() {
+    const layer = $("parts-labels");
+    layer.innerHTML = "";
+    if (!mission || !mission.parts) return;
+    const placed = mission.parts
+      .map((p, i) => ({ ...p, num: i + 1, el: document.querySelector(`.part[data-part="${p.key}"]`) }))
+      .filter((p) => p.el)
+      .map((p) => {
+        const box = p.el.getBBox();
+        return { ...p, cx: box.x + box.width / 2, top: box.y, bottom: box.y + box.height };
+      })
+      .sort((a, b) => a.cx - b.cx);
+    placed.forEach((p, i) => {
+      const down = i % 2 === 0;
+      const y = down ? LABEL_DOWN : LABEL_UP;
+      const g = document.createElementNS(SVG_NS, "g");
+      g.setAttribute("class", "part-label");
+      g.dataset.part = p.key;
+      const line = document.createElementNS(SVG_NS, "line");
+      line.setAttribute("x1", p.cx);
+      line.setAttribute("x2", p.cx);
+      line.setAttribute("y1", down ? p.bottom + 6 : p.top - 6);
+      line.setAttribute("y2", down ? y - 16 : y + 16);
+      const circle = document.createElementNS(SVG_NS, "circle");
+      circle.setAttribute("r", 14);
+      const num = document.createElementNS(SVG_NS, "text");
+      num.setAttribute("class", "num");
+      num.textContent = p.num;
+      const name = document.createElementNS(SVG_NS, "text");
+      name.setAttribute("class", "name");
+      name.textContent = p.label;
+      g.append(line, circle, num, name);
+      layer.appendChild(g);
+      // număr + nume centrate împreună sub/deasupra piesei
+      const width = 34 + name.getComputedTextLength();
+      const left = Math.min(Math.max(p.cx - width / 2, 8), 1592 - width);
+      circle.setAttribute("cx", left + 14);
+      circle.setAttribute("cy", y);
+      num.setAttribute("x", left + 14);
+      num.setAttribute("y", y);
+      name.setAttribute("x", left + 34);
+      name.setAttribute("y", y);
+    });
+  }
+
+  function renderParts(p) {
+    $("parts").hidden = !p;
+    document.body.classList.toggle("parts-on", !!p);
+    if (!p) return;
+    if (!$("parts-labels").childElementCount) buildPartLabels();
+    $("parts-count").textContent = `Piesa ${p.index} din ${p.total}`;
+    $("parts-name").textContent = p.name;
+    $("parts-text").textContent = p.text;
+    $("parts-svg").classList.add("has-active");
+    for (const el of document.querySelectorAll(".part, .part-label")) {
+      el.classList.toggle("active", el.dataset.part === p.key);
+    }
+  }
+
   // ---------- conexiune ----------
   function onSnapshot(s) {
     snap = s;
     handleChanges(s);
     renderPanel(s);
     renderQuiz(s.quiz);
+    renderParts(s.parts);
   }
 
   function connect() {
@@ -376,7 +444,7 @@
   });
 
   // Aceleași taste ca în modul --sim; merg și pe monitorul Pi-ului, cu o tastatură USB.
-  const KEYS = { g: "go", l: "launch", s: "stage", a: "abort", r: "reset", z: "quiz" };
+  const KEYS = { g: "go", l: "launch", s: "stage", a: "abort", r: "reset", z: "quiz", p: "parts" };
   document.addEventListener("keydown", (e) => {
     if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || !snap || !snap.web_control) return;
     const button = KEYS[e.key.toLowerCase()];
@@ -393,7 +461,10 @@
       mission = m;
       buildLists();
       placeQuizCells();
-      if (snap) renderPanel(snap);
+      if (snap) {
+        renderPanel(snap);
+        renderParts(snap.parts);
+      }
     })
     .finally(connect);
   requestAnimationFrame(frame);

@@ -15,6 +15,7 @@ from werkzeug.serving import make_server
 from ..config import Config
 from ..controller import BUTTONS, Controller, clock_text
 from ..mission import Mission
+from ..parts_data import PARTS
 
 log = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ def mission_info(mission: Mission, cfg: Config) -> dict:
         "max_alt_km": last[1],
         "max_vel_kmh": round(last[2] * 3.6),
         "button_layout": dict(cfg.button_layout),
+        "parts": [{"key": p.key, "label": p.label} for p in PARTS],
     }
 
 

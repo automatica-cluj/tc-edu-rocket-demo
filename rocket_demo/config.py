@@ -85,6 +85,14 @@ class Config:
         default_factory=lambda: {"abort": "tl", "stage": "tr", "go": "bl", "launch": "br"}
     )
 
+    # --- Piesele rachetei (LAUNCH ținut apăsat în ecranul de start sau pe cele finale) ---
+    # Câte secunde ții apăsat LAUNCH ca să deschizi ecranul. LAUNCH apăsat scurt merge ca înainte.
+    launch_hold_s: float = 2.0
+    # Dacă nimeni nu apasă, trece singur la piesa următoare după atâtea secunde.
+    parts_step_s: float = 8.0
+    # Ecranul se închide singur dacă nimeni nu apasă niciun buton atâtea secunde.
+    parts_idle_timeout_s: float = 120.0
+
     # --- Pagina web ---
     web_enabled: bool = True
     web_host: str = "0.0.0.0"

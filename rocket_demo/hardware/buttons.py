@@ -13,7 +13,7 @@ OnPress = Callable[[str], None]
 
 
 class _ShortOrLong:
-    """GO trimite `short` la eliberare sau `long` dacă a fost ținut apăsat."""
+    """Butonul trimite `short` la eliberare sau `long` dacă a fost ținut apăsat."""
 
     def __init__(self, on_press: OnPress, short: str, long: str):
         self._on_press = on_press
@@ -36,9 +36,12 @@ class _ShortOrLong:
 class GpioButtons:
     """Butoane legate între un pin GPIO și GND (folosim rezistența pull-up internă).
 
-    Ținerea apăsată a butonului ABORT trimite evenimentul `reset`. GO acționează la
-    eliberare: apăsat scurt trimite `go`, ținut `go_hold_s` secunde trimite `quiz`.
+    Ținerea apăsată a butonului ABORT trimite evenimentul `reset`. GO și LAUNCH acționează
+    la eliberare: apăsat scurt trimit `go` / `launch`, ținute `go_hold_s` / `launch_hold_s`
+    secunde trimit `quiz` / `parts` (ecranul cu piesele rachetei).
     """
+
+    LONG_PRESS = {"go": "quiz", "launch": "parts"}
 
     def __init__(
         self,
@@ -46,18 +49,19 @@ class GpioButtons:
         on_press: OnPress,
         reset_hold_s: float = 3.0,
         go_hold_s: float = 2.0,
+        launch_hold_s: float = 2.0,
     ):
         from gpiozero import Button
 
         self._buttons = []
         for name, pin in pins.items():
-            hold_s = go_hold_s if name == "go" else reset_hold_s
+            hold_s = {"go": go_hold_s, "launch": launch_hold_s}.get(name, reset_hold_s)
             button = Button(pin, pull_up=True, bounce_time=0.05, hold_time=hold_s)
-            if name == "go":
-                go = _ShortOrLong(on_press, "go", "quiz")
-                button.when_pressed = go.pressed
-                button.when_held = go.held
-                button.when_released = go.released
+            if name in self.LONG_PRESS:
+                both = _ShortOrLong(on_press, name, self.LONG_PRESS[name])
+                button.when_pressed = both.pressed
+                button.when_held = both.held
+                button.when_released = both.released
             else:
                 button.when_pressed = self._callback(on_press, name)
             if name == "abort":
@@ -84,9 +88,10 @@ class KeyboardButtons:
         "a": "abort",
         "r": "reset",
         "z": "quiz",
+        "p": "parts",
         "q": "quit",
     }
-    HELP = "Taste: g=GO  l=LAUNCH  s=STAGE  a=ABORT  r=RESET  z=QUIZ  q=iesire"
+    HELP = "Taste: g=GO  l=LAUNCH  s=STAGE  a=ABORT  r=RESET  z=QUIZ  p=PIESE  q=iesire"
 
     def __init__(self, on_press: OnPress, stream=None):
         self._on_press = on_press
