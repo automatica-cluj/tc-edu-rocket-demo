@@ -198,22 +198,24 @@ html, body {
 .info p { margin: 0; font-size: clamp(21px, 2vw, 29px); line-height: 1.45; color: #d5ddf2; }
 .info p.voice-note { margin-top: 10px; font-size: clamp(16px, 1.4vw, 21px); color: var(--muted); }
 
-.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .list li {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
   background: #0b1224;
   color: var(--muted);
-  font-size: 22px;
+  font-size: clamp(26px, 2.3vw, 36px);
+  font-weight: 600;
+  line-height: 1.2;
 }
-.list li .mark { width: 26px; text-align: center; font-weight: 900; }
-.list li .time { font-variant-numeric: tabular-nums; min-width: 74px; color: var(--muted); }
+.list li .mark { width: 1.2em; text-align: center; font-weight: 900; }
+.list li .time { font-variant-numeric: tabular-nums; min-width: 3.6em; color: var(--muted); }
 .list li.done { color: var(--text); }
 .list li.done .mark { color: var(--go); }
-.list li.current { color: var(--text); background: #1b2850; outline: 2px solid var(--accent); }
+.list li.current { color: var(--text); background: #1b2850; outline: 3px solid var(--accent); }
 .list li.hold { color: var(--warn); outline: 2px solid var(--warn); }
 
 .lcd {
