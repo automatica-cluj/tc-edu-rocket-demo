@@ -45,6 +45,12 @@ ecranul de start sau pe ecranul de la finalul misiunii: pe LCD apare „Voce: OP
 - **De ce spre est?** Pământul se rotește spre est, deci racheta pornește deja cu viteza
   lui de rotație.
 
+## Timp accelerat
+
+În zbor, **țineți GO apăsat**: după 2 secunde timpul curge de 5 ori mai repede, până
+eliberați butonul. Bun pentru părțile lungi, de exemplu cele aproape 1,5 minute în
+care urcă treapta a 2-a, când clasa a înțeles deja ce se întâmplă.
+
 ## Piesele rachetei
 
 Înainte de prima misiune, **țineți LAUNCH apăsat 2 secunde**. Pe proiector apare racheta

@@ -146,6 +146,8 @@
     });
 
     $("stage-banner").hidden = !s.awaiting_stage;
+    $("ff-banner").hidden = !s.fast_forward || s.awaiting_stage;
+    if (s.fast_forward) $("ff-banner").textContent = `⏩ Timp accelerat ×${s.fast_forward}`;
     $("controls").hidden = !(showControls && s.web_control);
 
     const big = $("big-count");
@@ -455,6 +457,11 @@
       e.preventDefault();
       press(button);
     }
+  });
+
+  // Z ținut apăsat = GO ținut apăsat: în zbor accelerează timpul până la eliberare.
+  document.addEventListener("keyup", (e) => {
+    if (e.key.toLowerCase() === "z" && snap && snap.web_control) press("go_up");
   });
 
   makeStars();

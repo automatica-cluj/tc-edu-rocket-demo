@@ -161,6 +161,10 @@ De știut:
 3. **LAUNCH** pornește numărătoarea de la T-10. Motoarele se aprind la T-3, iar la T-0
    racheta decolează.
 4. Zborul este accelerat de 4 ori: 8 minute și jumătate de misiune durează ~2 minute.
+   - **GO ținut apăsat** (după 2 secunde) accelerează timpul de încă 5 ori, cât îl ții
+     apăsat; util în părțile lungi ale zborului. LCD-ul arată „>> RAPID x5”, iar pagina
+     web „Timp accelerat ×5”. Zborul se oprește în continuare la STAGE și așteaptă
+     explicațiile citite. Factorul se schimbă din `fast_forward_factor` în `config.py`.
    - După MECO, LCD-ul cere **STAGE**. Dacă nimeni nu apasă în 20 de secunde, separarea se
      face automat.
    - **ABORT** în timpul numărătorii anulează lansarea (scrub). În zbor, ABORT salvează
@@ -230,7 +234,8 @@ Deschide în browser, pe un calculator din aceeași rețea:
   dezactiva cu `web_control = False` în `config.py`.
 - **Control din tastatură:** cu pagina deschisă, tastele **G**=GO, **L**=LAUNCH,
   **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele, **Z** deschide quiz-ul
-  (ca GO ținut apăsat), iar **P** ecranul cu piesele rachetei (ca LAUNCH ținut apăsat). Merge din browserul de pe
+  (ca GO ținut apăsat), iar **P** ecranul cu piesele rachetei (ca LAUNCH ținut apăsat). În zbor, **Z** ținut
+  apăsat accelerează timpul, ca GO ținut apăsat. Merge din browserul de pe
   laptop și pe monitorul Pi-ului, cu o tastatură USB legată la Pi (și în modul kiosk).
 - **Din terminal, cu LCD-ul și butoanele reale:**
   1. `systemctl --user stop rocket-demo`;

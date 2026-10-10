@@ -43,6 +43,9 @@ class Config:
     hold_s: float = 6.0
     # True = elevii trebuie să apese STAGE pentru separarea treptelor.
     interactive_stage: bool = True
+    # În zbor, GO ținut apăsat (după `go_hold_s` secunde) accelerează timpul de atâtea ori
+    # în plus față de `time_scale`; la eliberarea lui GO zborul revine la viteza normală.
+    fast_forward_factor: float = 5.0
     # Câte secunde (reale) așteptăm apăsarea STAGE înainte de separarea automată.
     stage_window_s: float = 20.0
     # Cu câte secunde de misiune înainte de separare e acceptată apăsarea STAGE.

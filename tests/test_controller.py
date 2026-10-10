@@ -1,3 +1,4 @@
+import pytest
 from conftest import Harness
 
 from rocket_demo.mission import EVENTS
@@ -312,3 +313,39 @@ def test_abort_on_orbit_screen_toggles_voice(h):
     h.press("abort")
     assert h.ctrl.snapshot()["voice_on"] is True
     assert h.audio.voiced[-1] == "stare_orbit"  # citește din nou ecranul curent
+
+
+def test_holding_go_in_flight_speeds_up_time_until_release(h):
+    h.go_to_flight()
+    h.run(1)
+    t0 = h.ctrl.snapshot()["t"]
+    h.press("quiz")  # GO ținut apăsat
+    assert h.ctrl.snapshot()["fast_forward"] == h.cfg.fast_forward_factor
+    h.run(1)
+    t1 = h.ctrl.snapshot()["t"]
+    assert t1 - t0 == pytest.approx(h.cfg.time_scale * h.cfg.fast_forward_factor, abs=1)
+    h.run(1.0, step=0.5)
+    assert ">> RAPID x5" in [f[1].strip() for f in h.display.frames[-3:]]
+    h.press("go_up")  # GO eliberat
+    assert h.ctrl.snapshot()["fast_forward"] is None
+    t2 = h.ctrl.snapshot()["t"]
+    h.run(1)
+    assert h.ctrl.snapshot()["t"] - t2 == pytest.approx(h.cfg.time_scale, abs=0.5)
+
+
+def test_fast_forward_still_stops_for_stage_and_ends_with_flight(h):
+    h.go_to_flight()
+    h.press("quiz")
+    h.run_until(lambda: h.ctrl.snapshot()["awaiting_stage"])
+    assert h.ctrl.snapshot()["fired"][-1] == "meco"  # nu a sărit peste separare
+    h.press("stage")
+    h.run_until(lambda: h.state == "orbit")
+    assert h.ctrl.snapshot()["fast_forward"] is None
+
+
+def test_go_release_after_opening_quiz_does_not_reach_the_quiz(h):
+    h.press("quiz")
+    assert h.state == "quiz"
+    h.press("go_up")  # eliberarea lui GO care a deschis quiz-ul
+    assert h.state == "quiz"
+    assert h.ctrl.snapshot()["quiz"]["phase"] == "intro"

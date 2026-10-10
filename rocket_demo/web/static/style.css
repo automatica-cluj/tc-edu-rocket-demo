@@ -128,6 +128,23 @@ html, body {
 }
 @keyframes pulse { from { opacity: 1; } to { opacity: .45; } }
 
+/* GO ținut apăsat în zbor: timpul curge mai repede */
+.ff-banner {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 10px 24px;
+  border-radius: 999px;
+  background: rgba(14, 21, 40, .85);
+  border: 2px solid var(--accent);
+  color: var(--text);
+  font-size: clamp(20px, 2.6vw, 34px);
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
 /* ---------- panou ---------- */
 .panel {
   display: flex;

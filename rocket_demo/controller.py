@@ -28,7 +28,8 @@ log = logging.getLogger(__name__)
 
 # «quiz» = GO ținut apăsat (sau tasta Z): deschide quiz-ul din ecranul de start sau de final.
 # «parts» = LAUNCH ținut apăsat (sau tasta P): deschide ecranul cu piesele rachetei.
-BUTTONS = ("go", "launch", "stage", "abort", "reset", "quiz", "parts")
+# În zbor, «quiz» (GO ținut apăsat) accelerează timpul până la «go_up» (GO eliberat).
+BUTTONS = ("go", "launch", "stage", "abort", "reset", "quiz", "parts", "go_up")
 # În afara ecranului de start și a celor finale, o apăsare lungă contează ca una scurtă.
 LONG_AS_SHORT = {"quiz": "go", "parts": "launch"}
 
@@ -91,6 +92,7 @@ class Controller:
         self._flash_text = ""
         self._flash_until = 0.0
         self._voice_playing: str | None = None
+        self._fast_forward = False
         # Pornită/oprită cu ABORT în ecranul de start sau pe cele finale; rămâne așa de la o
         # misiune la alta.
         self._voice_on = config.voice_enabled
@@ -142,6 +144,8 @@ class Controller:
         log.info("stare: %s", state.value)
         self.state = state
         self._state_since = now
+        if state != State.FLIGHT:
+            self._fast_forward = False
 
     def _enter_idle(self, now: float) -> None:
         self._set_state(State.IDLE, now)
@@ -175,7 +179,17 @@ class Controller:
             self._flash("Reset", now)
             return
 
+        if button == "go_up":
+            # GO eliberat după o apăsare lungă: doar oprește accelerarea, oriunde ar fi.
+            self._fast_forward = False
+            return
+
         s = self.state
+        if s == State.FLIGHT and button == "quiz":
+            # GO ținut apăsat (tasta Z: pornit/oprit, pentru terminal fără eliberare)
+            self._fast_forward = not self._fast_forward
+            log.info("timp accelerat: %s", "da" if self._fast_forward else "nu")
+            return
         if s == State.QUIZ:
             self._quiz.press(LONG_AS_SHORT.get(button, button), now)
             if self._quiz.exited:
@@ -359,7 +373,10 @@ class Controller:
                 self._fire(self._next_event(), now)
             return
 
-        self._flight_t += dt * self.cfg.time_scale
+        speed = self.cfg.time_scale
+        if self._fast_forward:
+            speed *= self.cfg.fast_forward_factor
+        self._flight_t += dt * speed
         while self.state == State.FLIGHT:
             ev = self._next_event()
             if ev is None or ev.t > self._flight_t:
@@ -478,6 +495,8 @@ class Controller:
             line1 = f"{clock_text(self._flight_t)} {label}"
             if self._awaiting_since is not None:
                 return line1, ">> APASA STAGE!" if blink else ""
+            if self._fast_forward and blink:
+                return line1, f">> RAPID x{self.cfg.fast_forward_factor:g}"
             return line1, format_lcd(self._telemetry())
         if s == State.ORBIT:
             if screen == 0:
@@ -539,6 +558,7 @@ class Controller:
             "voice_on": self._voice_on,
             "quiz": self._quiz.view(now) if self._quiz else None,
             "parts": self._parts.view(now) if self._parts else None,
+            "fast_forward": self.cfg.fast_forward_factor if self._fast_forward else None,
         }
         with self._cond:
             previous = {k: v for k, v in self._snapshot.items() if k != "version"}

@@ -13,12 +13,17 @@ OnPress = Callable[[str], None]
 
 
 class _ShortOrLong:
-    """Butonul trimite `short` la eliberare sau `long` dacă a fost ținut apăsat."""
+    """Butonul trimite `short` la eliberare sau `long` dacă a fost ținut apăsat.
 
-    def __init__(self, on_press: OnPress, short: str, long: str):
+    Cu `release`, după o apăsare lungă trimite și `release` la eliberare (GO: oprește
+    accelerarea timpului în zbor).
+    """
+
+    def __init__(self, on_press: OnPress, short: str, long: str, release: str | None = None):
         self._on_press = on_press
         self._short = short
         self._long = long
+        self._release = release
         self._held = False
 
     def pressed(self) -> None:
@@ -31,6 +36,8 @@ class _ShortOrLong:
     def released(self) -> None:
         if not self._held:
             self._on_press(self._short)
+        elif self._release:
+            self._on_press(self._release)
 
 
 class GpioButtons:
@@ -38,10 +45,12 @@ class GpioButtons:
 
     Ținerea apăsată a butonului ABORT trimite evenimentul `reset`. GO și LAUNCH acționează
     la eliberare: apăsat scurt trimit `go` / `launch`, ținute `go_hold_s` / `launch_hold_s`
-    secunde trimit `quiz` / `parts` (ecranul cu piesele rachetei).
+    secunde trimit `quiz` / `parts` (ecranul cu piesele rachetei). După o apăsare lungă,
+    eliberarea lui GO trimite `go_up` (în zbor, GO ținut apăsat accelerează timpul).
     """
 
     LONG_PRESS = {"go": "quiz", "launch": "parts"}
+    RELEASE = {"go": "go_up"}
 
     def __init__(
         self,
@@ -58,7 +67,7 @@ class GpioButtons:
             hold_s = {"go": go_hold_s, "launch": launch_hold_s}.get(name, reset_hold_s)
             button = Button(pin, pull_up=True, bounce_time=0.05, hold_time=hold_s)
             if name in self.LONG_PRESS:
-                both = _ShortOrLong(on_press, name, self.LONG_PRESS[name])
+                both = _ShortOrLong(on_press, name, self.LONG_PRESS[name], self.RELEASE.get(name))
                 button.when_pressed = both.pressed
                 button.when_held = both.held
                 button.when_released = both.released

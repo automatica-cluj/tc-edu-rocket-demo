@@ -269,7 +269,7 @@ def test_gpio_go_short_press_and_hold():
         time.sleep(0.5)
         pin.drive_high()
         time.sleep(0.05)
-        assert pressed == ["go", "quiz"]  # ținut: doar quiz, fără GO
+        assert pressed == ["go", "quiz", "go_up"]  # ținut: quiz (fără GO), apoi eliberarea
     finally:
         buttons.close()
         gpiozero.Device.pin_factory.reset()
