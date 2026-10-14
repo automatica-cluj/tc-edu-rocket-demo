@@ -95,6 +95,7 @@ SOUNDS = {
     "ignition": lambda: noise(3.0, 0.8, 0.06, envelope=lambda x: x**1.5),
     "liftoff": lambda: noise(4.0, 0.9, 0.08, envelope=lambda x: min(1, x * 10) * (1 - x) ** 0.5),
     "engine_loop": lambda: noise(3.0, 0.5, 0.05),
+    "pitch": lambda: concat(tone(523, 0.12), tone(659, 0.25)),
     "maxq": lambda: concat(tone(660, 0.2), tone(880, 0.35)),
     "meco": lambda: tone(600, 0.8, freq_end=200),
     "stage_prompt": lambda: concat(beeps(1200, 3), silence(0.25), beeps(1200, 3)),
@@ -114,6 +115,14 @@ SOUNDS = {
     ),
     "abort_alarm": lambda: siren(4.0),
     "scrub": lambda: concat(tone(400, 0.3), silence(0.05), tone(300, 0.6)),
+    "quiz_start": lambda: concat(*[tone(f, 0.12) for f in (392, 523, 659)], tone(784, 0.3)),
+    "quiz_correct": lambda: concat(tone(784, 0.12), tone(1047, 0.3)),
+    "quiz_wrong": lambda: tone(330, 0.5, freq_end=220),
+    "quiz_tick": lambda: tone(1500, 0.05, 0.35, attack=0.002, release=0.02),
+    "quiz_end": lambda: concat(
+        *[tone(f, 0.15) for f in (523, 659, 784, 1047)],
+        mix(tone(523, 0.9, 0.25), tone(784, 0.9, 0.25), tone(1047, 0.9, 0.25)),
+    ),
 }
 
 

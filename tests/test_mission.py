@@ -45,3 +45,28 @@ def test_format_lcd_fits():
         assert len(format_lcd(interpolate(TELEMETRY, t))) <= 16
     assert format_lcd(Telemetry(200, 7800)) == "200km 28080km/h"
     assert format_lcd(Telemetry(12.34, 450)) == "12.3km 1620km/h"
+
+
+def test_voice_texts_files_are_up_to_date():
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(root / "tools"))
+    import make_voice_texts
+
+    for lang in ("en", "ro"):
+        current = (root / "sounds" / "voce" / lang / "TEXTE.md").read_text(encoding="utf-8")
+        expected = make_voice_texts.render(lang)
+        assert current == expected, "rulează: python3 tools/make_voice_texts.py"
+        for text in expected.split("\n## ")[1:]:
+            assert "~" not in text and "«" not in text, text
+
+
+def test_english_voice_covers_every_explanation():
+    from rocket_demo.mission import voice_texts
+    from rocket_demo.mission_en import VOICE_EN
+
+    assert set(VOICE_EN) == set(voice_texts())
+    for text in VOICE_EN.values():
+        assert text.isascii() and "~" not in text, text

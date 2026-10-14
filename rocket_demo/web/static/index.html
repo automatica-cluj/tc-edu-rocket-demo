@@ -79,6 +79,9 @@
               <path class="flame" id="flame2" d="M-8 -118 Q-4 -80 0 -40 Q4 -80 8 -118 Z" fill="url(#vac-flame-grad)"/>
               <path d="M-6 -128 L6 -128 L9 -118 L-9 -118 Z" fill="#555c6b"/>
               <rect x="-11" y="-176" width="22" height="48" fill="#f3f5f9" stroke="#b8c0cf"/>
+              <text x="0" y="-152" text-anchor="middle" font-size="7" font-weight="700" fill="#2b3140"
+                    transform="rotate(-90 0 -152)"><tspan x="0" dy="-0.9">ALEX &amp;</tspan><tspan
+                    x="0" dy="7.6">ANDREI</tspan></text>
             </g>
           </g>
           <g id="capsule" class="part">
@@ -103,6 +106,7 @@
     <div id="big-count" class="big-count" hidden></div>
     <div id="toast" class="toast" hidden></div>
     <div id="stage-banner" class="stage-banner" hidden>APASĂ STAGE!</div>
+    <div id="ff-banner" class="ff-banner" hidden></div>
   </section>
 
   <aside class="panel">
@@ -133,6 +137,7 @@
       <div class="info-kicker">Știai că…?</div>
       <h2 id="info-title"></h2>
       <p id="info-text"></p>
+      <p id="voice-note" class="voice-note" hidden></p>
     </article>
 
     <ol id="checks" class="list"></ol>
@@ -144,10 +149,112 @@
       <button data-btn="stage" class="btn stage">STAGE</button>
       <button data-btn="abort" class="btn abort">ABORT</button>
       <button data-btn="reset" class="btn reset">RESET</button>
-      <p class="keys-hint">Taste: G=GO · L=LAUNCH · S=STAGE · A=ABORT · R=RESET</p>
+      <button data-btn="quiz" class="btn btn-quiz">QUIZ</button>
+      <button data-btn="parts" class="btn btn-parts">PIESE</button>
+      <p class="keys-hint">Taste: G=GO · L=LAUNCH · S=STAGE · A=ABORT · R=RESET · Z=QUIZ · P=PIESE</p>
     </div>
   </aside>
 </main>
+
+<!-- Quiz: răspunsurile sunt așezate ca butoanele de pe panou (vezi Config.button_layout). -->
+<section id="quiz" class="quiz" hidden aria-live="polite">
+  <header class="quiz-head">
+    <div class="quiz-title">Quiz: lansarea rachetei <span id="quiz-count" class="quiz-count"></span></div>
+    <ol id="quiz-progress" class="quiz-progress"></ol>
+    <div class="quiz-score">Scor <b id="quiz-score">0</b></div>
+  </header>
+  <div id="quiz-timer" class="quiz-timer" hidden>
+    <div class="quiz-timer-track"><i id="quiz-timer-bar"></i></div>
+    <span id="quiz-timer-text"></span>
+  </div>
+  <h1 id="quiz-question" class="quiz-question"></h1>
+  <p id="quiz-sub" class="quiz-sub"></p>
+  <div id="quiz-feedback" class="quiz-feedback" hidden>
+    <strong id="quiz-verdict"></strong> <span id="quiz-explanation"></span>
+    <span class="quiz-next">GO = mai departe</span>
+  </div>
+  <div id="quiz-grid" class="quiz-grid">
+    <div class="quiz-cell" data-btn="abort"><span class="quiz-btn">ABORT</span><span class="quiz-text"></span></div>
+    <div class="quiz-cell" data-btn="stage"><span class="quiz-btn">STAGE</span><span class="quiz-text"></span></div>
+    <div class="quiz-cell" data-btn="go"><span class="quiz-btn">GO</span><span class="quiz-text"></span></div>
+    <div class="quiz-cell" data-btn="launch"><span class="quiz-btn">LAUNCH</span><span class="quiz-text"></span></div>
+  </div>
+  <div id="quiz-confirm" class="quiz-confirm" hidden>Ieșiți din quiz?<br><small>Apăsați ABORT încă o dată.</small></div>
+</section>
+
+<!-- Piesele rachetei: racheta desfăcută, culcată (vârful în dreapta). Fiecare data-part
+     corespunde unei piese din rocket_demo/parts_data.py; etichetele le pune app.js. -->
+<section id="parts" class="parts" hidden aria-live="polite">
+  <header class="parts-head">
+    <div class="parts-title">Piesele rachetei <span class="parts-sub">racheta desfăcută pe bucăți</span></div>
+    <div id="parts-count" class="parts-count"></div>
+  </header>
+  <svg id="parts-svg" class="parts-svg" viewBox="0 112 1600 336" role="img" aria-label="Racheta desfăcută pe piese">
+    <defs>
+      <pattern id="grid-fin" width="8" height="8" patternUnits="userSpaceOnUse">
+        <rect width="8" height="8" fill="#c7cede"/>
+        <path d="M0 0 H8 M0 0 V8" stroke="#56607a" stroke-width="2"/>
+      </pattern>
+    </defs>
+    <line class="parts-axis" x1="20" y1="280" x2="1590" y2="280"/>
+    <g id="parts-labels"></g>
+
+    <g class="part" data-part="legs">
+      <path d="M118 252 L48 196" class="strut"/><path d="M118 308 L48 364" class="strut"/>
+      <rect x="30" y="186" width="30" height="10" rx="3" class="dark"/>
+      <rect x="30" y="364" width="30" height="10" rx="3" class="dark"/>
+    </g>
+    <g class="part" data-part="engines">
+      <path d="M218 246 L218 262 L150 272 L150 236 Z" class="metal"/>
+      <path d="M218 272 L218 288 L150 298 L150 262 Z" class="metal"/>
+      <path d="M218 298 L218 314 L150 324 L150 288 Z" class="metal"/>
+      <rect x="214" y="240" width="12" height="80" class="dark"/>
+    </g>
+    <g class="part" data-part="fuel_tank">
+      <rect x="244" y="242" width="276" height="76" rx="6" class="body"/>
+      <text x="382" y="286" class="part-mark">RP-1</text>
+    </g>
+    <g class="part" data-part="lox_tank">
+      <rect x="540" y="242" width="236" height="76" rx="6" class="body lox"/>
+      <text x="658" y="286" class="part-mark">LOX</text>
+    </g>
+    <g class="part" data-part="grid_fins">
+      <rect x="796" y="242" width="56" height="76" class="body"/>
+      <rect x="806" y="198" width="36" height="40" fill="url(#grid-fin)" class="fin"/>
+      <rect x="806" y="322" width="36" height="40" fill="url(#grid-fin)" class="fin"/>
+    </g>
+    <g class="part" data-part="interstage">
+      <rect x="872" y="242" width="78" height="76" class="dark"/>
+    </g>
+    <g class="part" data-part="stage2_engine">
+      <path d="M1064 268 L1064 292 L974 324 L974 236 Z" class="metal"/>
+      <rect x="1060" y="262" width="10" height="36" class="dark"/>
+    </g>
+    <g class="part" data-part="stage2_tanks">
+      <rect x="1086" y="242" width="206" height="76" rx="6" class="body"/>
+      <line x1="1188" y1="242" x2="1188" y2="318" class="seam"/>
+      <text x="1137" y="285" class="part-mark small">RP-1</text>
+      <text x="1240" y="285" class="part-mark small">LOX</text>
+    </g>
+    <g class="part" data-part="heat_shield">
+      <path d="M1316 236 Q1302 280 1316 324 L1328 324 L1328 236 Z" class="shield"/>
+    </g>
+    <g class="part" data-part="capsule">
+      <path d="M1346 236 L1442 262 L1442 298 L1346 324 Z" class="capsule"/>
+      <rect x="1384" y="266" width="16" height="12" rx="2" class="window"/>
+    </g>
+    <g class="part" data-part="les">
+      <path d="M1462 266 L1510 274 M1462 294 L1510 286 M1462 266 L1486 290 M1486 270 L1510 286" class="truss"/>
+      <rect x="1510" y="268" width="40" height="24" rx="3" class="red"/>
+      <path d="M1550 268 L1588 280 L1550 292 Z" class="red"/>
+    </g>
+  </svg>
+  <div class="parts-card">
+    <h1 id="parts-name" class="parts-name"></h1>
+    <p id="parts-text" class="parts-text"></p>
+  </div>
+  <p class="parts-hint"><b>GO</b> piesa următoare · <b>STAGE</b> înapoi · <b>ABORT</b> ieșire</p>
+</section>
 <script src="/static/app.js"></script>
 </body>
 </html>

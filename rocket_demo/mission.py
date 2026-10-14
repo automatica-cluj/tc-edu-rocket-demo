@@ -9,6 +9,8 @@ Reguli pentru textele de pe LCD (câmpurile `lcd...`):
 
 Valorile de zbor sunt aproximative, inspirate de o rachetă reală cu două trepte
 (de tip Falcon 9) care duce o capsulă cu echipaj pe o orbită joasă (~200 km).
+Capsula are turn de salvare (ca Soiuz sau Orion), deși Crew Dragon, capsula
+lansată de Falcon 9, nu are; textul etapei «les» explică diferența.
 """
 
 from __future__ import annotations
@@ -20,6 +22,7 @@ from dataclasses import dataclass
 class Check:
     """O stație din verificarea GO/NO-GO."""
 
+    key: str
     lcd: str
     name: str
     info: str
@@ -58,6 +61,7 @@ class Mission:
 
 CHECKS = (
     Check(
+        key="meteo",
         lcd="METEO",
         name="Meteo",
         info="Meteorologii verifică vântul, norii și fulgerele. Un vânt puternic la "
@@ -67,6 +71,7 @@ CHECKS = (
         "multe lansări sunt amânate din cauza vremii.",
     ),
     Check(
+        key="propulsie",
         lcd="PROPULSIE",
         name="Propulsie",
         info="Echipa de propulsie verifică motoarele și rezervoarele. Racheta are nevoie "
@@ -76,6 +81,7 @@ CHECKS = (
         "înainte să continuăm.",
     ),
     Check(
+        key="ghidare",
         lcd="GHIDARE",
         name="Ghidare",
         info="Se verifică calculatoarele de bord și senzorii care țin racheta pe traseul "
@@ -85,6 +91,7 @@ CHECKS = (
         "verificat din nou.",
     ),
     Check(
+        key="comunicatii",
         lcd="COMUNICATII",
         name="Comunicații",
         info="Antenele de pe sol trebuie să primească semnalul rachetei pe tot drumul, ca "
@@ -93,6 +100,7 @@ CHECKS = (
         hold_info="Semnalul radio este prea slab. Se reglează antenele de la sol.",
     ),
     Check(
+        key="siguranta",
         lcd="SIGURANTA",
         name="Siguranța zonei",
         info="Zona din jurul rampei și traseul peste ocean trebuie să fie libere: nicio "
@@ -111,7 +119,7 @@ EVENTS = (
         title="Decolare!",
         info="Motoarele împing mai tare decât cântărește racheta, așa că ea începe să "
         "urce. La start, o rachetă ca Falcon 9 cântărește aproape 550 de tone, cam cât "
-        "90 de elefanți!",
+        "90 de elefanți mari!",
         sound="liftoff",
         engine=True,
     ),
@@ -123,6 +131,7 @@ EVENTS = (
         info="Racheta a trecut de turnul de lansare și începe să se încline spre est. "
         "Pentru a ajunge pe orbită contează mai mult viteza «în lateral» decât "
         "înălțimea, iar spre est ne ajută și rotația Pământului.",
+        sound="pitch",
     ),
     FlightEvent(
         key="maxq",
@@ -139,9 +148,9 @@ EVENTS = (
         t=150,
         lcd="MECO",
         title="MECO: treapta 1 se oprește",
-        info="MECO = Main Engine Cut-Off. Combustibilul primei trepte s-a terminat, iar "
-        "motoarele se opresc. În doar două minute și jumătate au ars peste 400 de tone "
-        "de combustibil și oxigen!",
+        info="MECO = Main Engine Cut-Off. Motoarele primei trepte se opresc. În doar "
+        "două minute și jumătate au ars aproape 400 de tone de combustibil și oxigen! "
+        "Au mai rămas doar câteva zeci de tone, păstrate pentru aterizare.",
         sound="meco",
         engine=False,
     ),
@@ -150,7 +159,7 @@ EVENTS = (
         t=153,
         lcd="SEPARARE",
         title="Separarea treptelor",
-        info="Treapta 1, acum goală, se desprinde. Fără greutatea ei, restul rachetei "
+        info="Treapta 1, acum aproape goală, se desprinde. Fără greutatea ei, restul rachetei "
         "accelerează mult mai ușor. De aceea rachetele au mai multe trepte!",
         sound="separation",
         needs_stage=True,
@@ -172,7 +181,9 @@ EVENTS = (
         title="Turnul de salvare se desprinde",
         info="Pe vârful capsulei e un mic turn cu motoare-rachetă. Dacă ceva nu merge "
         "bine, el trage capsula cu astronauții departe de rachetă. Acum suntem destul "
-        "de sus și nu mai e nevoie de el.",
+        "de sus ca, la nevoie, capsula să se desprindă și fără el, așa că îl aruncăm: "
+        "ar fi doar greutate în plus. (Capsula Crew Dragon nu are turn: motoarele ei "
+        "de salvare sunt chiar în pereții capsulei.)",
         sound="les_jettison",
     ),
     FlightEvent(
@@ -236,7 +247,7 @@ STATE_INFO = {
     ),
     "countdown": Info(
         "Numărătoarea inversă",
-        "În ultimele secunde, calculatoarele preiau controlul. La T-3 pornesc motoarele, "
+        "În ultimul minut, calculatoarele preiau controlul. La T-3 pornesc motoarele, "
         "dar racheta e ținută de cleme până se confirmă că împing destul de tare.",
     ),
     "scrub": Info(
@@ -266,6 +277,7 @@ SOUNDS = {
     "ignition": "la T-3, aprinderea motoarelor",
     "liftoff": "la T-0, decolarea",
     "engine_loop": "zgomot de motor, se repetă cât timp motoarele merg",
+    "pitch": "racheta a trecut de turn și se înclină (de ex. «roll program»)",
     "maxq": "momentul Max-Q",
     "meco": "oprirea motoarelor treptei 1",
     "stage_prompt": "alarmă: «apăsați STAGE!»",
@@ -276,8 +288,40 @@ SOUNDS = {
     "orbit": "am ajuns pe orbită (aplauze/fanfară)",
     "abort_alarm": "ABORT în zbor (sirenă)",
     "scrub": "lansare anulată înainte de decolare",
+    "quiz_start": "începe o rundă de quiz",
+    "quiz_correct": "răspuns corect la quiz",
+    "quiz_wrong": "răspuns greșit la quiz (sau timpul a expirat)",
+    "quiz_tick": "tic-tac în ultimele 5 secunde ale unei întrebări",
+    "quiz_end": "finalul quiz-ului: scorul (aplauze/fanfară scurtă)",
 }
 
 DEFAULT_MISSION = Mission(
     checks=CHECKS, events=EVENTS, telemetry=TELEMETRY, state_info=STATE_INFO
 )
+
+# Stări fără voce: în numărătoare se aude deja sunetul `countdown` (o voce care numără).
+NO_VOICE_STATES = ("countdown",)
+
+
+def voice_texts(mission: Mission = DEFAULT_MISSION) -> dict[str, tuple[str, str]]:
+    """Explicațiile citite de voce: cheie (= numele fișierului din `sounds/voce/`) -> (titlu, text).
+
+    Cheile sunt aceleași pe care le alege `Controller._voice_key()` pentru textul afișat
+    pe pagina web în acel moment.
+    """
+    def state(name: str) -> tuple[str, str]:
+        info = mission.state_info[name]
+        return info.title, info.text
+
+    texts = {"stare_idle": state("idle")}
+    for check in mission.checks:
+        texts[f"statie_{check.key}"] = (f"Verificare: {check.name}", check.info)
+        texts[f"hold_{check.key}"] = (f"HOLD: {check.name}", check.hold_info)
+    texts["stare_ready"] = state("ready")
+    # Ultima etapă (SECO) trece direct pe orbită, unde se afișează textul stării «orbit».
+    for ev in mission.events[:-1]:
+        texts[f"etapa_{ev.key}"] = (ev.title, ev.info)
+    for name in mission.state_info:
+        if f"stare_{name}" not in texts and name not in NO_VOICE_STATES:
+            texts[f"stare_{name}"] = state(name)
+    return texts

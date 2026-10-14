@@ -1,7 +1,21 @@
 # tc-edu-rocket-demo
 
-Demo educațional pentru elevi de 12–14 ani, care rulează pe un **Raspberry Pi**. Arată
-etapele lansării unei rachete, de la verificările GO/NO-GO până pe orbită.
+> **Notă: este un proiect educațional, făcut pentru elevii din clasele a V-a și a VI-a.**
+> Scopul lui e ca elevii să înțeleagă, jucându-se, cum decurge lansarea unei rachete. Nu e
+> un simulator de zbor și nici un produs terminat.
+>
+> - **Știința e simplificată:** valorile (timpi, altitudini, viteze) sunt aproximative,
+>   inspirate de o rachetă de tip Falcon 9. Explicațiile sunt scurte și pe înțelesul copiilor.
+>   Le-am verificat să nu spună lucruri greșite, dar lasă intenționat deoparte multe detalii.
+> - **Montajul e simplu:** piese ieftine, ușor de găsit (Raspberry Pi, 4 butoane, un LCD,
+>   o boxă), legate cu fire și puse într-o cutie printată 3D.
+> - **Codul a fost scris cu ajutorul AI:** proiectul a fost implementat cu
+>   [Claude Code](https://claude.com/claude-code) (Anthropic), cu modelul **Claude Opus 5.5**.
+>   Instrucțiunile pentru Claude sunt în [CLAUDE.md](CLAUDE.md) (vezi
+>   [Pentru dezvoltatori](#9-pentru-dezvoltatori)).
+
+Demo educațional, care rulează pe un
+**Raspberry Pi**. Arată etapele lansării unei rachete, de la verificările GO/NO-GO până pe orbită.
 
 - **Butoane fizice:** GO, LAUNCH, STAGE și ABORT.
 - **LCD 16x2:** arată etapa, numărătoarea inversă, altitudinea și viteza.
@@ -17,9 +31,37 @@ GO x5 stații ─► LAUNCH ─► T-10 … T-3 aprindere … T-0 DECOLARE
 
 Ghidul pentru oră (roluri, întrebări, explicații): [docs/ghid-profesor.md](docs/ghid-profesor.md).
 
+### Cum arată pagina web
+
+| Start: verificările GO/NO-GO | În zbor: separarea treptelor |
+| --- | --- |
+| ![Ecranul de start cu racheta pe rampă și lista stațiilor](docs/img/ecran-start.png) | ![Zborul la MECO, cu „APASĂ STAGE!”, telemetria și etapele zborului](docs/img/ecran-zbor.png) |
+| **Piesele rachetei** (LAUNCH ținut apăsat) | **Quiz** (GO ținut apăsat) |
+| ![Racheta desfăcută pe bucăți, cu numele pieselor](docs/img/ecran-piese.png) | ![O întrebare din quiz, cu răspunsurile așezate ca butoanele](docs/img/ecran-quiz.png) |
+
 ---
 
 ## 1. De ce ai nevoie
+
+### Montajul nostru
+
+![Montajul hardware: boxa Bluetooth, power bank, Raspberry Pi 5 în carcasă, cablu-panglică spre cutia galbenă cu cele 4 butoane și LCD-ul](docs/img/setup-hardware.png)
+
+*Imagine ilustrativă, retușată cu AI după montajul real. Pe cutia reală, etichetele sunt cele din
+[docs/etichete.html](docs/etichete.html), în română.*
+
+Totul stă pe o placă de lemn:
+
+- **Boxa Bluetooth** (Sony SRS-XB10) pentru sunete și voce (vezi
+  [Boxă Bluetooth](#boxă-bluetooth-raspberry-pi-os-cu-desktop));
+- **Raspberry Pi 5** în carcasa oficială. Monitorul sau proiectorul se leagă la portul micro-HDMI 0;
+- **un power bank** care alimentează Pi-ul prin USB-C, ca montajul să poată fi mutat ușor;
+- **cablu-panglică cu 40 de fire** de la pinii GPIO la cutia de control;
+- **cutia de control** (galbenă): cele 4 butoane, ABORT și STAGE sus, GO și LAUNCH jos, și LCD-ul 16x2
+  („Panou de stare”). Modelele 3D pentru printare sunt în [cutie-3d/](cutie-3d/);
+- **etichetele** printate din [docs/etichete.html](docs/etichete.html).
+
+### Lista de componente
 
 | Componentă | Observații |
 |---|---|
@@ -29,6 +71,7 @@ Ghidul pentru oră (roluri, întrebări, explicații): [docs/ghid-profesor.md](d
 | 4 butoane | ideal mari, de tip „arcade”; ABORT roșu |
 | Difuzor activ (cu alimentare proprie) | Pi 3/4: în mufa jack 3,5 mm. **Pi 5 nu are jack**: folosește o placă de sunet USB (adaptor USB → jack 3,5 mm) sau un difuzor USB. |
 | Breadboard, T-cobbler, fire | |
+| Cutie de control (opțional) | printată 3D, vezi [cutie-3d/](cutie-3d/). Panoul are găuri de ~9,4 mm pentru butoane mici, nu pentru cele „arcade”. |
 
 **Raspberry Pi 5:** codul e același. Pinii GPIO, I2C-ul și butoanele sunt identice. Diferențele sunt
 doar de hardware: sunetul merge printr-o placă de sunet USB, iar alimentatorul trebuie să fie de 5A.
@@ -66,8 +109,7 @@ butoane ─── GND (39) (40)
 - Butoanele nu au nevoie de rezistențe: folosim rezistența pull-up internă a Pi-ului.
   Fiecare buton se leagă între pinul lui și GND.
 - Pinii se pot schimba din `rocket_demo/config.py` (`button_pins`).
-- *Notă:* adaptorul I2C alimentat la 5V își trage liniile SDA/SCL puțin peste 3,3 V. În
-  practică merge, dar varianta corectă electric este un mic level-shifter I2C.
+- *Notă:* adaptorul I2C alimentat la 5V își trage liniile SDA/SCL puțin peste 3,3 V. 
 
 ## 3. Instalare pe Raspberry Pi
 
@@ -153,19 +195,75 @@ De știut:
 
 ## 4. Utilizare
 
-1. La pornire, LCD-ul arată „MISIUNE AURORA / Apasa GO”, alternând cu adresa paginii
-   web.
+1. La pornire, LCD-ul arată 5 secunde „Pornire... / Asteptam boxa”, ca boxa Bluetooth
+   să apuce să se conecteze (`start_delay_s` în `config.py`, `0` = fără pauză). Apoi
+   arată „MISIUNE AURORA / Apasa GO”, alternând cu adresa paginii web.
 2. **GO** pornește verificările. Fiecare dintre cele 5 stații cere câte un **GO**. Uneori
    o stație cere **HOLD**; după câteva secunde problema se rezolvă și se cere din nou GO.
 3. **LAUNCH** pornește numărătoarea de la T-10. Motoarele se aprind la T-3, iar la T-0
    racheta decolează.
 4. Zborul este accelerat de 4 ori: 8 minute și jumătate de misiune durează ~2 minute.
-   - După MECO, LCD-ul cere **STAGE**. Dacă nimeni nu apasă în 8 secunde, separarea se
+   - **GO ținut apăsat** (după 2 secunde) accelerează timpul de încă 5 ori, cât îl ții
+     apăsat; util în părțile lungi ale zborului. LCD-ul arată „>> RAPID x5”, iar pagina
+     web „Timp accelerat ×5”. Zborul se oprește în continuare la STAGE și așteaptă
+     explicațiile citite. Factorul se schimbă din `fast_forward_factor` în `config.py`.
+   - După MECO, LCD-ul cere **STAGE**. Dacă nimeni nu apasă în 20 de secunde, separarea se
      face automat.
    - **ABORT** în timpul numărătorii anulează lansarea (scrub). În zbor, ABORT salvează
      capsula.
 5. Pe orbită, după abort sau după un scrub, **GO** pornește o misiune nouă.
 6. **Ținând ABORT apăsat 3 secunde**, demo-ul se resetează (util pentru profesor).
+7. **ABORT apăsat scurt în ecranul de start sau pe ecranul final** (orbită, abort,
+   scrub) oprește sau pornește vocea care citește explicațiile. Pe ecranul final merge
+   la 2 secunde după ce a apărut. LCD-ul arată „Voce: OPRITA” / „Voce: PORNITA”, apoi „GO >> fara voce”
+   cât timp vocea e oprită; pagina web arată același lucru. Alegerea rămâne valabilă de
+   la o misiune la alta, până la repornirea demo-ului.
+
+GO și LAUNCH acționează când le eliberezi: apăsate scurt merg ca de obicei, ținute 2
+secunde deschid quiz-ul (GO) sau ecranul cu piesele rachetei (LAUNCH). În timpul misiunii,
+GO și LAUNCH ținute apăsat contează tot ca GO și LAUNCH.
+
+### Quiz
+
+**Ține GO apăsat 2 secunde** în ecranul de start sau pe un ecran final (orbită, abort,
+scrub). Pe pagina web apare quiz-ul; quiz-ul are nevoie de pagina web deschisă pe un
+ecran (proiector, monitor sau laptop).
+
+- **8 întrebări**, alese aleatoriu din ~27, cu câte **20 de secunde** fiecare. Toată
+  clasa răspunde împreună.
+- Fiecare întrebare are 3 variante, așezate pe ecran **în același colț ca butoanele de pe
+  panou**. Implicit, panoul arată așa:
+
+  | stânga | dreapta |
+  |---|---|
+  | **ABORT**: ieșire | **STAGE**: răspuns |
+  | **GO**: răspuns | **LAUNCH**: răspuns |
+
+  Dacă butoanele tale sunt așezate altfel, schimbă `button_layout` în `config.py`.
+- După răspuns, sau când expiră timpul, apar răspunsul corect și o scurtă explicație.
+  Se trece singur mai departe după 8 secunde; **GO** trece mai repede.
+- La final apar scorul și gradul: *Cadet*, *Pilot*, *Inginer de zbor* sau *Director de
+  zbor*. **GO** pornește o rundă nouă.
+- **ABORT** iese din quiz. În timpul jocului cere confirmare: apasă ABORT de două ori,
+  în 3 secunde. **ABORT ținut 3 s** resetează demo-ul, ca de obicei.
+- Quiz-ul se închide singur dacă nimeni nu apasă nimic un minut. Vocea tace cât ține
+  quiz-ul.
+- LCD-ul arată numărul întrebării, scorul și secundele rămase.
+- Întrebările sunt în `rocket_demo/quiz_data.py`: le poți schimba sau adăuga (prima
+  variantă e mereu cea corectă; ordinea se amestecă la joc).
+
+### Piesele rachetei
+
+**Ține LAUNCH apăsat 2 secunde** în ecranul de start sau pe un ecran final. Pe pagina web
+apare racheta desfăcută pe bucăți, culcată, cu numele celor 11 piese: de la turnul de
+salvare și capsulă până la motoarele principale și picioarele de aterizare.
+
+- Piesa curentă e evidențiată, iar dedesubt apare ce face.
+- **GO**: piesa următoare. **STAGE**: înapoi. **ABORT**: ieșire.
+- Dacă nimeni nu apasă, trece singur la piesa următoare la fiecare 8 secunde
+  (`parts_step_s`) și se închide după 2 minute fără apăsări (`parts_idle_timeout_s`).
+- LCD-ul arată numărul și numele piesei. Vocea tace cât timp e deschis ecranul.
+- Piesele și explicațiile sunt în `rocket_demo/parts_data.py`.
 
 ### Pagina web
 
@@ -174,10 +272,12 @@ Deschide în browser, pe un calculator din aceeași rețea:
 
 - Pagina se actualizează singură. Poate fi deschisă pe mai multe calculatoare deodată.
 - Cu `http://racheta.local:8000/?control=1` apar și butoane virtuale (GO, LAUNCH,
-  STAGE, ABORT, RESET). Sunt utile la teste sau dacă un buton fizic nu merge. Le poți
+  STAGE, ABORT, RESET, QUIZ, PIESE); în quiz se poate da clic și pe carduri. Sunt utile la teste sau dacă un buton fizic nu merge. Le poți
   dezactiva cu `web_control = False` în `config.py`.
 - **Control din tastatură:** cu pagina deschisă, tastele **G**=GO, **L**=LAUNCH,
-  **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele. Merge din browserul de pe
+  **S**=STAGE, **A**=ABORT și **R**=RESET merg ca butoanele, **Z** deschide quiz-ul
+  (ca GO ținut apăsat), iar **P** ecranul cu piesele rachetei (ca LAUNCH ținut apăsat). În zbor, **Z** ținut
+  apăsat accelerează timpul, ca GO ținut apăsat. Merge din browserul de pe
   laptop și pe monitorul Pi-ului, cu o tastatură USB legată la Pi (și în modul kiosk).
 - **Din terminal, cu LCD-ul și butoanele reale:**
   1. `systemctl --user stop rocket-demo`;
@@ -224,6 +324,39 @@ Pune sample-urile în `sounds/` cu numele din [sounds/README.md](sounds/README.m
 exemplu `sounds/liftoff.wav`. Ele înlocuiesc automat sunetele provizorii. Ca să asculți
 unul: `.venv/bin/python -m rocket_demo --play liftoff`.
 
+### Vocea care citește explicațiile
+
+Demo-ul poate citi cu voce tare explicația afișată pe pagina web (fiecare stație,
+fiecare HOLD, fiecare etapă a zborului, orbita, abort-ul). Implicit vocea vorbește
+**română** (vocea Ana Maria, de pe ElevenLabs). Există și o variantă în engleză:
+`voice_language = "en"` în `config.py` sau `--voice-lang en`; textele de pe ecran rămân
+în română.
+
+Textele de dat unui generator de voce (text-to-speech) sunt în
+[sounds/voce/en/TEXTE.md](sounds/voce/en/TEXTE.md) și
+[sounds/voce/ro/TEXTE.md](sounds/voce/ro/TEXTE.md), fiecare cu numele fișierului în
+care trebuie salvată vocea, de exemplu `sounds/voce/ro/etapa_liftoff.mp3`.
+
+Până le generezi pe ale tale, demo-ul folosește ciornele din `sounds/voce/<limbă>/ciorna/`,
+citite de vocile Samantha (engleză) și Ioana (română) din macOS
+(`tools/make_voice_drafts.py`). Fișierele tale din `sounds/voce/<limbă>/` au prioritate
+față de ele.
+
+- Vocea are canalul ei, iar o explicație nouă o oprește pe cea veche. Cât vorbește
+  vocea, motorul și celelalte efecte coboară la 30% din volum și revin treptat după.
+  Reglaj: `voice_duck` în `config.py` (`1.0` = nu le mai reduce).
+- Zborul și HOLD-ul **așteaptă să se termine explicația** înainte de etapa următoare,
+  ca elevii să audă tot. Cu toate vocile, zborul durează ~3 minute în loc de ~2.
+  Fără așteptare: `voice_wait = False` în `config.py`.
+- Fără voce: ABORT apăsat scurt în ecranul de start sau pe cel final (din nou, ca s-o
+  pornești), sau
+  `--no-voice` la pornire. Fișierele care lipsesc sunt sărite.
+- Ascultă una: `--play etapa_liftoff`; toate: `--play voce`.
+- După ce schimbi textele din `mission.py`, schimbă și traducerea din
+  `rocket_demo/mission_en.py`, rulează `python3 tools/make_voice_texts.py` ca să
+  actualizezi fișierele `TEXTE.md`, apoi generează din nou vocile textelor schimbate
+  (și ciornele lor, pe un Mac: `python3 tools/make_voice_drafts.py etapa_les`).
+
 ## 6. Personalizare
 
 - **`rocket_demo/config.py`:**
@@ -235,8 +368,14 @@ unul: `.venv/bin/python -m rocket_demo --play liftoff`.
   - portul paginii web.
 - **`rocket_demo/mission.py`:** stațiile, etapele, momentele, textele de pe LCD și de
   pe pagina web, sunetul fiecărei etape. Fișierul conține doar date.
+- **`rocket_demo/quiz_data.py`:** întrebările quiz-ului. Numărul de întrebări, timpul,
+  durata explicației și așezarea butoanelor pe panou sunt în `config.py` (`quiz_*`,
+  `go_hold_s`, `button_layout`).
+- **`rocket_demo/parts_data.py`:** piesele rachetei de pe ecranul deschis cu LAUNCH ținut
+  apăsat. Desenul fiecărei piese e în `web/static/index.html` (`data-part`).
 - **Opțiuni din linia de comandă** (`python -m rocket_demo --help`): `--no-hold`,
-  `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--port 8080`,
+  `--auto-stage`, `--time-scale 2`, `--no-web`, `--no-sound`, `--no-voice`,
+  `--voice-lang ro`, `--port 8080`,
   `--lcd-address 0x3F`, `--keyboard`.
 
 ## 7. Rulare pe laptop (fără Raspberry Pi)
@@ -298,14 +437,28 @@ Pe acestea le verifici pe Pi, cu `--selftest`.
 rocket_demo/
   config.py       setări
   mission.py      conținutul misiunii (date)
+  mission_en.py   explicațiile în engleză, pentru voce
   telemetry.py    interpolarea altitudinii și vitezei
   controller.py   automatul de stări + bucla principală
+  quiz.py         logica quiz-ului (runde, timp, scor)
+  quiz_data.py    întrebările quiz-ului (date)
+  parts.py        ecranul cu piesele rachetei (navigare, trecere automată)
+  parts_data.py   piesele rachetei și explicațiile lor (date)
   hardware/       LCD (RPLCD), butoane (gpiozero), sunet (pygame) + variante simulate
   web/            server Flask + Server-Sent Events, pagina statică
 tools/make_placeholder_sounds.py
+tools/make_voice_texts.py   scrie sounds/voce/<limbă>/TEXTE.md din mission.py și mission_en.py
+tools/make_voice_drafts.py  ciornele de voce din sounds/voce/<limbă>/ciorna/ (macOS + lameenc)
 systemd/rocket-demo.service, install.sh
 tests/            pytest (ceas simulat, fără hardware)
 ```
+
+**Lucrul cu Claude Code:** proiectul a fost implementat cu Claude Code, cu modelul Claude Opus 5.5
+(commit-urile făcute așa au rândul `Co-Authored-By: Claude Opus 5.5`).
+[CLAUDE.md](CLAUDE.md) conține instrucțiunile pe care Claude le citește la fiecare sesiune: comenzile,
+arhitectura, regulile proiectului (de exemplu, textele în română) și cum se scriu testele. Dacă
+modifici arhitectura, actualizează și CLAUDE.md, ca următoarele modificări să pornească de la
+informații corecte.
 
 Rularea testelor:
 

@@ -1,3 +1,4 @@
+import pytest
 from conftest import Harness
 
 from rocket_demo.mission import EVENTS
@@ -183,3 +184,168 @@ def test_unknown_button_rejected(h):
         pass
     else:
         raise AssertionError("trebuia să dea eroare")
+
+
+def test_voice_follows_the_text_on_the_page(h):
+    assert h.audio.voiced == ["stare_idle"]
+    h.press("go")
+    h.press("go")
+    assert h.audio.voiced[-2:] == ["statie_meteo", "statie_propulsie"]
+    h.press(*["go"] * 4)
+    h.press("launch")
+    assert h.audio.voiced[-2:] == ["stare_ready", "stare_countdown"]  # oprește vocea
+    h.run_until(lambda: h.state == "flight")
+    assert h.audio.voiced[-1] == "etapa_liftoff"
+    h.press("abort")
+    assert h.audio.voiced[-1] == "stare_abort"
+
+
+def test_voice_keys_match_mission_texts(h):
+    from rocket_demo.mission import voice_texts
+
+    texts = voice_texts()
+    h.go_to_flight()
+    h.cfg.interactive_stage = False
+    h.run_until(lambda: h.state == "orbit")
+    h.press("go")
+    h.press("abort")
+    for key in set(h.audio.voiced) - {"stare_countdown"}:
+        assert key in texts, key
+    assert {f"etapa_{ev.key}" for ev in EVENTS[:-1]} <= set(h.audio.voiced)
+
+
+def test_flight_waits_for_voice_to_finish(h):
+    h.go_to_flight()
+    h.audio.speaking = True
+    h.run(30)
+    snap = h.ctrl.snapshot()
+    assert snap["fired"] == ["liftoff"]
+    assert snap["clock"] == f"T+0:{EVENTS[1].t:02d}"  # ceasul stă la etapa următoare
+    h.audio.speaking = False
+    h.run(0.2)
+    assert h.ctrl.snapshot()["fired"] == ["liftoff", "pitch"]
+
+
+def test_flight_ignores_voice_when_voice_wait_is_off():
+    h = Harness(voice_wait=False)
+    h.go_to_flight()
+    h.audio.speaking = True
+    h.run(10)
+    assert len(h.ctrl.snapshot()["fired"]) > 1
+
+
+def test_hold_waits_for_voice_to_finish():
+    h = Harness(hold_probability=1.0)
+    h.press("go")
+    while h.state != "hold":
+        h.press("go")
+    assert h.audio.voiced[-1].startswith("hold_")
+    h.audio.speaking = True
+    h.run(h.cfg.hold_s + 5)
+    assert h.state == "hold"
+    h.audio.speaking = False
+    h.run(0.2)
+    assert h.state == "checks"
+
+
+def test_abort_on_start_screen_toggles_voice(h):
+    assert h.ctrl.snapshot()["voice_on"] is True
+    h.press("abort")
+    assert h.state == "idle"
+    assert h.audio.voiced[-1] is None  # vocea care vorbea se oprește
+    assert h.display.last[1].strip() == "Voce: OPRITA"
+    assert h.ctrl.snapshot()["voice_on"] is False
+    h.run(6.0)  # după mesaj, ecranul de start alternează cu adresa IP la 3 s
+    assert h.display.last[1].strip() == "GO >> fara voce"
+
+    h.go_to_flight()
+    h.run(20)
+    assert set(h.audio.voiced) == {"stare_idle", None}  # zborul nu mai are voce
+    h.audio.speaking = True  # și nu mai așteaptă vocea
+    h.run(10)
+    assert len(h.ctrl.snapshot()["fired"]) > 2
+
+    h.press("reset")
+    h.press("abort")
+    assert h.display.last[1].strip() == "Voce: PORNITA"
+    assert h.audio.voiced[-1] == "stare_idle"  # citește din nou ecranul de start
+
+
+def test_holding_abort_to_reset_does_not_toggle_voice(h):
+    h.press("abort")  # ABORT ținut apăsat: întâi «abort»...
+    h.run(3.0)
+    h.press("reset")  # ...apoi «reset»
+    assert h.ctrl.snapshot()["voice_on"] is True
+    assert h.audio.voiced[-1] == "stare_idle"
+
+
+def test_abort_still_scrubs_during_checks(h):
+    h.press("go", "abort")
+    assert h.state == "scrub"
+    assert h.ctrl.snapshot()["voice_on"] is True
+
+
+def test_abort_on_end_screen_toggles_voice_after_grace(h):
+    from rocket_demo.controller import END_ABORT_GRACE_S
+
+    h.go_to_flight()
+    h.press("abort")  # abort în zbor
+    assert h.state == "abort"
+    h.press("abort")  # apăsat din nou imediat: nu schimbă vocea
+    assert h.ctrl.snapshot()["voice_on"] is True
+    h.run(END_ABORT_GRACE_S)
+    h.press("abort")
+    assert h.state == "abort"
+    assert h.ctrl.snapshot()["voice_on"] is False
+    assert h.display.last[1].strip() == "Voce: OPRITA"
+    h.press("go")  # misiunea nouă pornește fără voce
+    assert h.state == "checks"
+    assert h.audio.voiced[-1] is None
+
+
+def test_abort_on_orbit_screen_toggles_voice(h):
+    h.cfg.interactive_stage = False
+    h.go_to_flight()
+    h.run_until(lambda: h.state == "orbit")
+    h.run(3)
+    h.press("abort")
+    assert h.ctrl.snapshot()["voice_on"] is False
+    h.press("abort")
+    assert h.ctrl.snapshot()["voice_on"] is True
+    assert h.audio.voiced[-1] == "stare_orbit"  # citește din nou ecranul curent
+
+
+def test_holding_go_in_flight_speeds_up_time_until_release(h):
+    h.go_to_flight()
+    h.run(1)
+    t0 = h.ctrl.snapshot()["t"]
+    h.press("quiz")  # GO ținut apăsat
+    assert h.ctrl.snapshot()["fast_forward"] == h.cfg.fast_forward_factor
+    h.run(1)
+    t1 = h.ctrl.snapshot()["t"]
+    assert t1 - t0 == pytest.approx(h.cfg.time_scale * h.cfg.fast_forward_factor, abs=1)
+    h.run(1.0, step=0.5)
+    assert ">> RAPID x5" in [f[1].strip() for f in h.display.frames[-3:]]
+    h.press("go_up")  # GO eliberat
+    assert h.ctrl.snapshot()["fast_forward"] is None
+    t2 = h.ctrl.snapshot()["t"]
+    h.run(1)
+    assert h.ctrl.snapshot()["t"] - t2 == pytest.approx(h.cfg.time_scale, abs=0.5)
+
+
+def test_fast_forward_still_stops_for_stage_and_ends_with_flight(h):
+    h.go_to_flight()
+    h.press("quiz")
+    h.run_until(lambda: h.ctrl.snapshot()["awaiting_stage"])
+    assert h.ctrl.snapshot()["fired"][-1] == "meco"  # nu a sărit peste separare
+    h.press("stage")
+    h.run_until(lambda: h.state == "orbit")
+    assert h.ctrl.snapshot()["fast_forward"] is None
+
+
+def test_go_release_after_opening_quiz_does_not_reach_the_quiz(h):
+    h.press("quiz")
+    assert h.state == "quiz"
+    h.press("go_up")  # eliberarea lui GO care a deschis quiz-ul
+    assert h.state == "quiz"
+    assert h.ctrl.snapshot()["quiz"]["phase"] == "intro"

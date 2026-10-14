@@ -17,6 +17,9 @@ EXTENSIONS = (".wav", ".ogg", ".mp3")
 ENGINE_KEY = "engine_loop"
 APP_NAME = "Demo racheta"
 WATCH_S = 5.0
+CHANNELS = 16
+VOICE_CHANNEL = 1
+DUCK_STEP = 0.15  # cât se schimbă volumul efectelor la fiecare `update()` (~10/s)
 
 
 def find_sound(dirs: list[Path], name: str) -> Path | None:
@@ -52,6 +55,10 @@ class Audio:
     câteva secunde ieșirea audio implicită. Dacă ea se schimbă (de ex. s-a conectat sau
     reconectat boxa Bluetooth) sau sunetul nu a putut fi pornit la boot, redeschide
     sunetul pe noua ieșire, fără repornirea aplicației.
+
+    Vocea care citește explicațiile (`voice_keys`, din `voice_dirs`) are canalul ei:
+    o explicație nouă o oprește pe cea veche. Cât vorbește vocea, motorul și celelalte
+    efecte coboară la `duck` din volum, ca vocea să se audă bine (vezi `update()`).
     """
 
     def __init__(
@@ -61,6 +68,9 @@ class Audio:
         files: dict[str, str] | None = None,
         volume=1.0,
         watch_s: float | None = WATCH_S,
+        voice_dirs: list[Path] | None = None,
+        voice_keys=(),
+        duck: float = 1.0,
     ):
         os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
         # Nume propriu în PipeWire (`wpctl status`), ca volumul demo-ului să nu fie
@@ -73,12 +83,18 @@ class Audio:
         self._dirs = dirs
         self._keys = list(keys)
         self._files = files or {}
+        self._voice_dirs = voice_dirs or []
+        self._voice_keys = list(voice_keys)
         self._volume = volume
+        self._duck = duck
+        self._level = 1.0  # volumul curent al efectelor (1 = întreg, mai mic cât vorbește vocea)
         self._lock = threading.RLock()
         self._ready = False
         self._engine_on = False
         self.sounds = {}
         self.paths: dict[str, Path] = {}
+        self.voices = {}
+        self.voice_paths: dict[str, Path] = {}
         self.reopen_count = 0
 
         watching = watch_s is not None and shutil.which("wpctl") is not None
@@ -97,34 +113,43 @@ class Audio:
         pygame = self._pygame
         pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=1024)
         pygame.mixer.init()
-        pygame.mixer.set_num_channels(16)
-        pygame.mixer.set_reserved(1)  # canalul 0 e doar pentru motor
+        pygame.mixer.set_num_channels(CHANNELS)
+        pygame.mixer.set_reserved(2)  # canalul 0 e doar pentru motor, 1 pentru voce
         self._engine_channel = pygame.mixer.Channel(0)
+        self._voice_channel = pygame.mixer.Channel(VOICE_CHANNEL)
 
+        sounds, paths, missing = self._load(self._dirs, self._keys, self._files)
+        voices, voice_paths, _ = self._load(self._voice_dirs, self._voice_keys, {})
+        self.sounds, self.paths = sounds, paths
+        self.voices, self.voice_paths = voices, voice_paths
+        self._ready = True
+        log.info(
+            "sunete încărcate: %d/%d, voce: %d/%d (ieșire: %s)",
+            len(sounds),
+            len(self._keys),
+            len(voices),
+            len(self._voice_keys),
+            self._sink or "implicită",
+        )
+        if missing:
+            log.warning("lipsesc sunetele: %s (demo-ul merge și fără ele)", ", ".join(missing))
+
+    def _load(self, dirs: list[Path], keys: list[str], files: dict[str, str]):
         sounds, paths, missing = {}, {}, []
-        for key in self._keys:
-            path = find_sound(self._dirs, self._files.get(key, key))
+        for key in keys:
+            path = find_sound(dirs, files.get(key, key))
             if path is None:
                 missing.append(key)
                 continue
             try:
-                sound = pygame.mixer.Sound(str(path))
-            except pygame.error as exc:
+                sound = self._pygame.mixer.Sound(str(path))
+            except self._pygame.error as exc:
                 log.warning("nu pot citi %s: %s", path, exc)
                 continue
             sound.set_volume(self._volume)
             sounds[key] = sound
             paths[key] = path
-        self.sounds, self.paths = sounds, paths
-        self._ready = True
-        log.info(
-            "sunete încărcate: %d/%d (ieșire: %s)",
-            len(sounds),
-            len(self._keys),
-            self._sink or "implicită",
-        )
-        if missing:
-            log.warning("lipsesc sunetele: %s (demo-ul merge și fără ele)", ", ".join(missing))
+        return sounds, paths, missing
 
     def _reopen(self) -> None:
         with self._lock:
@@ -141,6 +166,7 @@ class Audio:
             self.reopen_count += 1
             if self._engine_on and ENGINE_KEY in self.sounds:
                 self._engine_channel.play(self.sounds[ENGINE_KEY], loops=-1, fade_ms=500)
+                self._engine_channel.set_volume(self._level)
 
     def check_output(self) -> None:
         """Redeschide sunetul dacă ieșirea implicită s-a schimbat sau sunetul nu merge."""
@@ -166,7 +192,9 @@ class Audio:
             sound = self.sounds.get(key)
             if self._ready and sound is not None:
                 try:
-                    sound.play()
+                    channel = sound.play()
+                    if channel is not None:
+                        channel.set_volume(self._level)  # `play()` pune volumul la maxim
                 except self._pygame.error as exc:
                     log.debug("nu pot reda %s: %s", key, exc)
 
@@ -180,10 +208,51 @@ class Audio:
                 if on:
                     if not self._engine_channel.get_busy():
                         self._engine_channel.play(sound, loops=-1, fade_ms=500)
+                        self._engine_channel.set_volume(self._level)
                 else:
                     self._engine_channel.fadeout(800)
             except self._pygame.error as exc:
                 log.debug("nu pot comanda motorul: %s", exc)
+
+    def voice(self, key: str | None) -> None:
+        """Citește explicația `key`, oprind-o pe cea de dinainte (None = doar oprește)."""
+        with self._lock:
+            if not self._ready:
+                return
+            sound = self.voices.get(key) if key else None
+            try:
+                if sound is None:
+                    self._voice_channel.stop()
+                else:
+                    self._voice_channel.play(sound)
+            except self._pygame.error as exc:
+                log.debug("nu pot reda vocea %s: %s", key, exc)
+
+    def voice_busy(self) -> bool:
+        with self._lock:
+            if not self._ready:
+                return False
+            try:
+                return self._voice_channel.get_busy()
+            except self._pygame.error:
+                return False
+
+    def update(self) -> None:
+        """Apelat de ~10 ori pe secundă: coboară treptat efectele cât vorbește vocea."""
+        with self._lock:
+            target = self._duck if self.voice_busy() else 1.0
+            if not self._ready or self._level == target:
+                return
+            if self._level > target:
+                self._level = max(target, self._level - DUCK_STEP)
+            else:
+                self._level = min(target, self._level + DUCK_STEP)
+            try:
+                for i in range(CHANNELS):
+                    if i != VOICE_CHANNEL:
+                        self._pygame.mixer.Channel(i).set_volume(self._level)
+            except self._pygame.error as exc:
+                log.debug("nu pot schimba volumul efectelor: %s", exc)
 
     def stop_all(self) -> None:
         with self._lock:
@@ -195,7 +264,7 @@ class Audio:
                     pass
 
     def length(self, key: str) -> float:
-        sound = self.sounds.get(key)
+        sound = self.sounds.get(key) or self.voices.get(key)
         return sound.get_length() if sound else 0.0
 
     def close(self) -> None:
@@ -210,11 +279,22 @@ class Audio:
 class NoAudio:
     sounds: dict = {}
     paths: dict = {}
+    voices: dict = {}
+    voice_paths: dict = {}
 
     def play(self, key: str) -> None:
         log.debug("sunet (dezactivat): %s", key)
 
     def engine(self, on: bool) -> None:
+        pass
+
+    def voice(self, key: str | None) -> None:
+        pass
+
+    def voice_busy(self) -> bool:
+        return False
+
+    def update(self) -> None:
         pass
 
     def stop_all(self) -> None:

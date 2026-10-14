@@ -1,6 +1,8 @@
 # Sunete
 
-Pune sample-urile tale în acest director, cu numele de mai jos. Extensia poate fi
+Pune sample-urile tale în acest director, cu numele de mai jos. Cele care sunt deja
+aici sunt înregistrări reale NASA (apeluri radio și vuietul lansării); sursele sunt în
+[SURSE.md](SURSE.md). Extensia poate fi
 `.wav`, `.ogg` sau `.mp3`; recomandăm **WAV sau OGG**.
 
 Sunetele tale au prioritate. Pentru cele care lipsesc, demo-ul folosește sunete
@@ -17,6 +19,7 @@ merge mai departe fără sunetul respectiv.
 | `ignition` | la **T-3**, aprinderea motoarelor | 2–4 s |
 | `liftoff` | la **T-0**, decolarea („Liftoff!” + vuiet) | 3–8 s |
 | `engine_loop` | zgomot de motor, **repetat în buclă** cât timp motoarele merg | 2–10 s, fără pauze la capete |
+| `pitch` | racheta a trecut de turn și se înclină („roll program”) | 1–5 s |
 | `maxq` | momentul Max-Q (o voce sau un semnal scurt) | 1–3 s |
 | `meco` | oprirea motoarelor treptei 1 | 1–3 s |
 | `stage_prompt` | alarmă „apăsați STAGE!” | 1–2 s |
@@ -27,6 +30,15 @@ merge mai departe fără sunetul respectiv.
 | `orbit` | am ajuns pe orbită (aplauze, fanfară) | 3–10 s |
 | `abort_alarm` | ABORT în zbor (sirenă) | 2–5 s |
 | `scrub` | lansare anulată înainte de decolare | 1–3 s |
+| `quiz_start` | începe o rundă de quiz | 1–2 s |
+| `quiz_correct` | răspuns corect la quiz | < 1 s |
+| `quiz_wrong` | răspuns greșit sau timp expirat | < 1 s |
+| `quiz_tick` | tic-tac în ultimele 5 secunde ale unei întrebări | < 0,2 s |
+| `quiz_end` | finalul quiz-ului, cu scorul | 2–4 s |
+
+Vocea care citește explicațiile are directorul ei, `sounds/voce/<limbă>/`; textele și
+numele fișierelor sunt în [voce/en/TEXTE.md](voce/en/TEXTE.md) și
+[voce/ro/TEXTE.md](voce/ro/TEXTE.md).
 
 ## Sfaturi
 

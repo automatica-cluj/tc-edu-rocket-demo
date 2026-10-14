@@ -12,19 +12,67 @@ log = logging.getLogger(__name__)
 OnPress = Callable[[str], None]
 
 
+class _ShortOrLong:
+    """Butonul trimite `short` la eliberare sau `long` dacă a fost ținut apăsat.
+
+    Cu `release`, după o apăsare lungă trimite și `release` la eliberare (GO: oprește
+    accelerarea timpului în zbor).
+    """
+
+    def __init__(self, on_press: OnPress, short: str, long: str, release: str | None = None):
+        self._on_press = on_press
+        self._short = short
+        self._long = long
+        self._release = release
+        self._held = False
+
+    def pressed(self) -> None:
+        self._held = False
+
+    def held(self) -> None:
+        self._held = True
+        self._on_press(self._long)
+
+    def released(self) -> None:
+        if not self._held:
+            self._on_press(self._short)
+        elif self._release:
+            self._on_press(self._release)
+
+
 class GpioButtons:
     """Butoane legate între un pin GPIO și GND (folosim rezistența pull-up internă).
 
-    Ținerea apăsată a butonului ABORT trimite evenimentul `reset`.
+    Ținerea apăsată a butonului ABORT trimite evenimentul `reset`. GO și LAUNCH acționează
+    la eliberare: apăsat scurt trimit `go` / `launch`, ținute `go_hold_s` / `launch_hold_s`
+    secunde trimit `quiz` / `parts` (ecranul cu piesele rachetei). După o apăsare lungă,
+    eliberarea lui GO trimite `go_up` (în zbor, GO ținut apăsat accelerează timpul).
     """
 
-    def __init__(self, pins: dict[str, int], on_press: OnPress, reset_hold_s: float = 3.0):
+    LONG_PRESS = {"go": "quiz", "launch": "parts"}
+    RELEASE = {"go": "go_up"}
+
+    def __init__(
+        self,
+        pins: dict[str, int],
+        on_press: OnPress,
+        reset_hold_s: float = 3.0,
+        go_hold_s: float = 2.0,
+        launch_hold_s: float = 2.0,
+    ):
         from gpiozero import Button
 
         self._buttons = []
         for name, pin in pins.items():
-            button = Button(pin, pull_up=True, bounce_time=0.05, hold_time=reset_hold_s)
-            button.when_pressed = self._callback(on_press, name)
+            hold_s = {"go": go_hold_s, "launch": launch_hold_s}.get(name, reset_hold_s)
+            button = Button(pin, pull_up=True, bounce_time=0.05, hold_time=hold_s)
+            if name in self.LONG_PRESS:
+                both = _ShortOrLong(on_press, name, self.LONG_PRESS[name], self.RELEASE.get(name))
+                button.when_pressed = both.pressed
+                button.when_held = both.held
+                button.when_released = both.released
+            else:
+                button.when_pressed = self._callback(on_press, name)
             if name == "abort":
                 button.when_held = self._callback(on_press, "reset")
             self._buttons.append(button)
@@ -42,8 +90,17 @@ class GpioButtons:
 class KeyboardButtons:
     """Tastele din terminal în locul butoanelor (modul --sim)."""
 
-    KEYS = {"g": "go", "l": "launch", "s": "stage", "a": "abort", "r": "reset", "q": "quit"}
-    HELP = "Taste: g=GO  l=LAUNCH  s=STAGE  a=ABORT  r=RESET  q=iesire"
+    KEYS = {
+        "g": "go",
+        "l": "launch",
+        "s": "stage",
+        "a": "abort",
+        "r": "reset",
+        "z": "quiz",
+        "p": "parts",
+        "q": "quit",
+    }
+    HELP = "Taste: g=GO  l=LAUNCH  s=STAGE  a=ABORT  r=RESET  z=QUIZ  p=PIESE  q=iesire"
 
     def __init__(self, on_press: OnPress, stream=None):
         self._on_press = on_press
