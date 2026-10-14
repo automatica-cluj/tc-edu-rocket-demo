@@ -11,6 +11,10 @@
 >   o boxă), legate cu fire și puse într-o cutie printată 3D.
 > - **Codul e scris ca să fie ușor de citit și de modificat,** nu ca să acopere toate
 >   situațiile posibile.
+> - **Codul a fost scris cu ajutorul AI:** proiectul a fost implementat cu
+>   [Claude Code](https://claude.com/claude-code) (Anthropic), cu modelul **Claude Opus 5.5**.
+>   Instrucțiunile pentru Claude sunt în [CLAUDE.md](CLAUDE.md) (vezi
+>   [Pentru dezvoltatori](#9-pentru-dezvoltatori)).
 
 Demo educațional pentru elevi de gimnaziu (clasele a V-a – a VI-a), care rulează pe un
 **Raspberry Pi**. Arată etapele lansării unei rachete, de la verificările GO/NO-GO până pe orbită.
@@ -451,6 +455,13 @@ tools/make_voice_drafts.py  ciornele de voce din sounds/voce/<limbă>/ciorna/ (m
 systemd/rocket-demo.service, install.sh
 tests/            pytest (ceas simulat, fără hardware)
 ```
+
+**Lucrul cu Claude Code:** proiectul a fost implementat cu Claude Code, cu modelul Claude Opus 5.5
+(commit-urile făcute așa au rândul `Co-Authored-By: Claude Opus 5.5`).
+[CLAUDE.md](CLAUDE.md) conține instrucțiunile pe care Claude le citește la fiecare sesiune: comenzile,
+arhitectura, regulile proiectului (de exemplu, textele în română) și cum se scriu testele. Dacă
+modifici arhitectura, actualizează și CLAUDE.md, ca următoarele modificări să pornească de la
+informații corecte.
 
 Rularea testelor:
 
