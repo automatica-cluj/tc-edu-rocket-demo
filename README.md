@@ -29,6 +29,23 @@ Ghidul pentru oră (roluri, întrebări, explicații): [docs/ghid-profesor.md](d
 
 ## 1. De ce ai nevoie
 
+### Montajul nostru
+
+![Montajul hardware: boxa Bluetooth, power bank, Raspberry Pi 5 în carcasă, cablu-panglică spre cutia galbenă cu cele 4 butoane și LCD-ul, plus etichetele printate](docs/img/setup-hardware.jpg)
+
+Totul stă pe o placă de lemn:
+
+- **Boxa Bluetooth** (Sony SRS-XB10) pentru sunete și voce (vezi
+  [Boxă Bluetooth](#boxă-bluetooth-raspberry-pi-os-cu-desktop));
+- **Raspberry Pi 5** în carcasa oficială. Monitorul sau proiectorul se leagă la portul micro-HDMI 0;
+- **un power bank**, ca montajul să poată fi mutat ușor;
+- **cablu-panglică cu 40 de fire** de la pinii GPIO la cutia de control;
+- **cutia de control** (galbenă): cele 4 butoane, ABORT și STAGE sus, GO și LAUNCH jos, și LCD-ul 16x2
+  („Panou de stare”);
+- **etichetele** printate din [docs/etichete.html](docs/etichete.html).
+
+### Lista de componente
+
 | Componentă | Observații |
 |---|---|
 | Raspberry Pi 3 Model B+, 4 sau 5 + card microSD ≥ 8 GB | Raspberry Pi OS (64-bit): **Lite** (recomandat) sau cu desktop |
