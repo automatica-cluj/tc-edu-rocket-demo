@@ -45,6 +45,9 @@ Ghidul pentru oră (roluri, întrebări, explicații): [docs/ghid-profesor.md](d
 
 ![Montajul hardware: boxa Bluetooth, power bank, Raspberry Pi 5 în carcasă, cablu-panglică spre cutia galbenă cu cele 4 butoane și LCD-ul](docs/img/setup-hardware.png)
 
+*Imagine ilustrativă, retușată cu AI după montajul real. Pe cutia reală, etichetele sunt cele din
+[docs/etichete.html](docs/etichete.html), în română.*
+
 Totul stă pe o placă de lemn:
 
 - **Boxa Bluetooth** (Sony SRS-XB10) pentru sunete și voce (vezi
