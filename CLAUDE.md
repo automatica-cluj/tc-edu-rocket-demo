@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Educational Raspberry Pi demo (for 12–14 year olds) that walks through a rocket launch: GO/NO-GO checks → countdown → flight stages → orbit. Inputs are 4 physical GPIO buttons (GO, LAUNCH, STAGE, ABORT), outputs are a 16x2 I2C LCD, a speaker, and a live web page for the classroom projector.
+Educational Raspberry Pi demo (for 5th–6th graders, about 11–12 years old; deliberately simple, approximate values, not a flight simulator) that walks through a rocket launch: GO/NO-GO checks → countdown → flight stages → orbit. Inputs are 4 physical GPIO buttons (GO, LAUNCH, STAGE, ABORT), outputs are a 16x2 I2C LCD, a speaker, and a live web page for the classroom projector.
 
 **Language:** All user-facing text, comments, docstrings, log messages, README and `docs/ghid-profesor.md` are in **Romanian**. Keep new code consistent with that.
 

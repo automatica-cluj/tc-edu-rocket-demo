@@ -1,7 +1,19 @@
 # tc-edu-rocket-demo
 
-Demo educațional pentru elevi de 12–14 ani, care rulează pe un **Raspberry Pi**. Arată
-etapele lansării unei rachete, de la verificările GO/NO-GO până pe orbită.
+> **Notă: este un proiect educațional, făcut pentru elevii din clasele a V-a și a VI-a.**
+> Scopul lui e ca elevii să înțeleagă, jucându-se, cum decurge lansarea unei rachete. Nu e
+> un simulator de zbor și nici un produs terminat.
+>
+> - **Știința e simplificată:** valorile (timpi, altitudini, viteze) sunt aproximative,
+>   inspirate de o rachetă de tip Falcon 9. Explicațiile sunt scurte și pe înțelesul copiilor.
+>   Le-am verificat să nu spună lucruri greșite, dar lasă intenționat deoparte multe detalii.
+> - **Montajul e simplu:** piese ieftine, ușor de găsit (Raspberry Pi, 4 butoane, un LCD,
+>   o boxă), legate cu fire și puse într-o cutie printată 3D.
+> - **Codul e scris ca să fie ușor de citit și de modificat,** nu ca să acopere toate
+>   situațiile posibile.
+
+Demo educațional pentru elevi de gimnaziu (clasele a V-a – a VI-a), care rulează pe un
+**Raspberry Pi**. Arată etapele lansării unei rachete, de la verificările GO/NO-GO până pe orbită.
 
 - **Butoane fizice:** GO, LAUNCH, STAGE și ABORT.
 - **LCD 16x2:** arată etapa, numărătoarea inversă, altitudinea și viteza.
