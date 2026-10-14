@@ -17,6 +17,14 @@ GO x5 stații ─► LAUNCH ─► T-10 … T-3 aprindere … T-0 DECOLARE
 
 Ghidul pentru oră (roluri, întrebări, explicații): [docs/ghid-profesor.md](docs/ghid-profesor.md).
 
+### Cum arată pagina web
+
+| Start: verificările GO/NO-GO | În zbor: separarea treptelor |
+| --- | --- |
+| ![Ecranul de start cu racheta pe rampă și lista stațiilor](docs/img/ecran-start.png) | ![Zborul la MECO, cu „APASĂ STAGE!”, telemetria și etapele zborului](docs/img/ecran-zbor.png) |
+| **Piesele rachetei** (LAUNCH ținut apăsat) | **Quiz** (GO ținut apăsat) |
+| ![Racheta desfăcută pe bucăți, cu numele pieselor](docs/img/ecran-piese.png) | ![O întrebare din quiz, cu răspunsurile așezate ca butoanele](docs/img/ecran-quiz.png) |
+
 ---
 
 ## 1. De ce ai nevoie
