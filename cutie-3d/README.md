@@ -1,6 +1,6 @@
 # Cutia de control (printare 3D)
 
-Cutia cu cele 4 butoane și LCD-ul, ca în [poza montajului](../docs/img/setup-hardware.jpg). Are
+Cutia cu cele 4 butoane și LCD-ul, ca în [poza montajului](../docs/img/setup-hardware.png). Are
 două piese: o carcasă cu capacul înclinat spre elevi și un panou plat care se prinde deasupra.
 
 | Fișier | Ce este | Dimensiuni |
