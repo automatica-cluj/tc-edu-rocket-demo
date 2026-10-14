@@ -53,7 +53,7 @@ Totul stă pe o placă de lemn:
 - **un power bank**, ca montajul să poată fi mutat ușor;
 - **cablu-panglică cu 40 de fire** de la pinii GPIO la cutia de control;
 - **cutia de control** (galbenă): cele 4 butoane, ABORT și STAGE sus, GO și LAUNCH jos, și LCD-ul 16x2
-  („Panou de stare”);
+  („Panou de stare”). Modelele 3D pentru printare sunt în [cutie-3d/](cutie-3d/);
 - **etichetele** printate din [docs/etichete.html](docs/etichete.html).
 
 ### Lista de componente
@@ -66,6 +66,7 @@ Totul stă pe o placă de lemn:
 | 4 butoane | ideal mari, de tip „arcade”; ABORT roșu |
 | Difuzor activ (cu alimentare proprie) | Pi 3/4: în mufa jack 3,5 mm. **Pi 5 nu are jack**: folosește o placă de sunet USB (adaptor USB → jack 3,5 mm) sau un difuzor USB. |
 | Breadboard, T-cobbler, fire | |
+| Cutie de control (opțional) | printată 3D, vezi [cutie-3d/](cutie-3d/). Panoul are găuri de ~9,4 mm pentru butoane mici, nu pentru cele „arcade”. |
 
 **Raspberry Pi 5:** codul e același. Pinii GPIO, I2C-ul și butoanele sunt identice. Diferențele sunt
 doar de hardware: sunetul merge printr-o placă de sunet USB, iar alimentatorul trebuie să fie de 5A.
