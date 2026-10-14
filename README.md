@@ -9,14 +9,12 @@
 >   Le-am verificat să nu spună lucruri greșite, dar lasă intenționat deoparte multe detalii.
 > - **Montajul e simplu:** piese ieftine, ușor de găsit (Raspberry Pi, 4 butoane, un LCD,
 >   o boxă), legate cu fire și puse într-o cutie printată 3D.
-> - **Codul e scris ca să fie ușor de citit și de modificat,** nu ca să acopere toate
->   situațiile posibile.
 > - **Codul a fost scris cu ajutorul AI:** proiectul a fost implementat cu
 >   [Claude Code](https://claude.com/claude-code) (Anthropic), cu modelul **Claude Opus 5.5**.
 >   Instrucțiunile pentru Claude sunt în [CLAUDE.md](CLAUDE.md) (vezi
 >   [Pentru dezvoltatori](#9-pentru-dezvoltatori)).
 
-Demo educațional pentru elevi de gimnaziu (clasele a V-a – a VI-a), care rulează pe un
+Demo educațional, care rulează pe un
 **Raspberry Pi**. Arată etapele lansării unei rachete, de la verificările GO/NO-GO până pe orbită.
 
 - **Butoane fizice:** GO, LAUNCH, STAGE și ABORT.
@@ -111,8 +109,7 @@ butoane ─── GND (39) (40)
 - Butoanele nu au nevoie de rezistențe: folosim rezistența pull-up internă a Pi-ului.
   Fiecare buton se leagă între pinul lui și GND.
 - Pinii se pot schimba din `rocket_demo/config.py` (`button_pins`).
-- *Notă:* adaptorul I2C alimentat la 5V își trage liniile SDA/SCL puțin peste 3,3 V. În
-  practică merge, dar varianta corectă electric este un mic level-shifter I2C.
+- *Notă:* adaptorul I2C alimentat la 5V își trage liniile SDA/SCL puțin peste 3,3 V. 
 
 ## 3. Instalare pe Raspberry Pi
 
